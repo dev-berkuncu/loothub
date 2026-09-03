@@ -1,26 +1,19 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "cdn.cloudflare.steamstatic.com",
+        protocol: 'https',
+        hostname: '**.steamstatic.com',
       },
       {
-        protocol: "https",
-        hostname: "cdn.akamai.steamstatic.com",
+        protocol: 'https',
+        hostname: '**.akamaihd.net',
       },
       {
-        protocol: "https",
-        hostname: "shared.cloudflare.steamstatic.com",
-      },
-      {
-        protocol: "https",
-        hostname: "shared.akamai.steamstatic.com",
-      },
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
       },
     ],
   },

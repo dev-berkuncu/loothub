@@ -16,15 +16,17 @@ export default function DealCard({ deal }: DealCardProps) {
   return (
     <div className="group relative rounded-xl bg-steam-card border border-steam-accent/50 hover:border-steam-blue transition-all duration-300 hover:shadow-xl hover:shadow-steam-blue/10 flex flex-col overflow-hidden">
       {/* Top Image & Badges */}
-      <Link href={`/deal/${deal.slug}`} className="relative block aspect-[16/9] w-full overflow-hidden bg-steam-darker">
-        <Image
-          src={deal.headerImage || deal.capsuleImage || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f'}
-          alt={deal.title}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-cover group-hover:scale-105 transition-transform duration-500"
-          loading="lazy"
-        />
+      <Link href={`/deal/${deal.slug}`} className="relative block w-full overflow-hidden bg-steam-darker">
+        <div className="relative aspect-[16/9] w-full">
+          <Image
+            src={deal.headerImage || deal.capsuleImage || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f'}
+            alt={deal.title}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            loading="lazy"
+          />
+        </div>
 
         {/* Discount Badge */}
         <div className="absolute top-2.5 right-2.5 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-steam-discount text-steam-green font-black text-sm shadow-lg backdrop-blur-sm border border-steam-green/30">

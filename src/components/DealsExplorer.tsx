@@ -100,7 +100,7 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
 
   return (
     <div className="space-y-10">
-      {/* Hero Featured Deal (if available) */}
+      {/* Hero Featured Deal */}
       {featuredDeal && !search && activeTab === 'all' && (
         <section className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-steam-card via-steam-card to-steam-accent/40 border border-steam-blue/30 shadow-2xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center p-6 md:p-8">
@@ -153,12 +153,16 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
               </div>
             </div>
 
-            <div className="lg:col-span-5">
-              <Link href={`/deal/${featuredDeal.slug}`} className="block relative aspect-[16/9] rounded-xl overflow-hidden shadow-xl group border border-steam-accent">
+            <div className="lg:col-span-5 w-full">
+              <Link
+                href={`/deal/${featuredDeal.slug}`}
+                className="block relative w-full aspect-[16/9] max-h-[300px] rounded-xl overflow-hidden shadow-xl group border border-steam-accent bg-steam-darker"
+              >
                 <Image
                   src={featuredDeal.headerImage}
                   alt={featuredDeal.title}
                   fill
+                  sizes="(max-width: 1024px) 100vw, 40vw"
                   priority
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
