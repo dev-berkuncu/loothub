@@ -6,12 +6,13 @@ import Footer from '@/components/Footer';
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   title: {
-    default: 'Steam İndirimleri & Fırsatlar | Otomatik Takip ve İnceleme Rehberi',
-    template: '%s | SteamFırsat',
+    default: 'LootHub | Akıllı Steam Fırsat & Oyun Keşif Platformu',
+    template: '%s | LootHub',
   },
   description:
-    'Steam üzerindeki en popüler oyun indirimleri, tarihi dip fiyatlar, sistem gereksinimleri ve detaylı oyun inceleme rehberi.',
+    'LootHub; Steam üzerindeki en avantajlı oyun indirimlerini, tarihi dip fiyatları, sistem gereksinimlerini ve detaylı oyun analizlerini sunan dijital keşif platformudur.',
   keywords: [
+    'LootHub',
     'Steam İndirimleri',
     'Steam Fırsatları',
     'En Ucuz Oyunlar',
@@ -19,18 +20,19 @@ export const metadata: Metadata = {
     'Steam Sale',
     'Oyun İncelemeleri',
     'Oyun Fiyat Takibi',
+    'Oyun Rehberi',
   ],
   openGraph: {
     type: 'website',
     locale: 'tr_TR',
-    siteName: 'SteamFırsat',
-    title: 'Steam İndirimleri & Fırsatlar - Günün En İyi Oyun Teklifleri',
+    siteName: 'LootHub',
+    title: 'LootHub - Günün En İyi Oyun Fırsatları & İnceleme Rehberi',
     description: 'Steam üzerindeki en iyi indirimler, kullanıcı puanları ve oyun incelemeleri.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Steam İndirimleri & Fırsatlar',
-    description: 'Günün en popüler Steam indirimleri ve inceleme detayları.',
+    title: 'LootHub - Akıllı Oyun Fırsat Platformu',
+    description: 'Günün en popüler Steam indirimleri ve detaylı oyun analizleri.',
   },
 };
 

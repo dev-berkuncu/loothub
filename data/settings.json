@@ -3,7 +3,7 @@
   "minDiscountPercentage": 30,
   "minSteamRatingPercentage": 60,
   "postIntervalMinutes": 60,
-  "siteName": "Steam İndirimleri & Fırsatlar",
+  "siteName": "LootHub",
   "siteUrl": "http://localhost:3000",
   "twitterApiKey": "3siTQTLu95sytNtVAGXItVGJq",
   "twitterApiSecret": "qnfapWKcavLMOxgvuGWwyDKiVhiPh9ldGR4dQjIEBEisYncfZ1",
