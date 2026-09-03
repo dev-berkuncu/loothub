@@ -5,18 +5,19 @@ import { getAllSettings, markDealAsPostedToTwitter, logTweet } from './db';
 
 // Generate engaging Turkish tweet text
 export function formatTweetText(deal: Deal, siteUrl: string): string {
-  // If siteUrl is localhost (which Twitter blocks), use the game's direct store/detail URL for testing
+  // If siteUrl is localhost (which Twitter blocks), use direct store URL
   let dealUrl = `${siteUrl.replace(/\/$/, '')}/deal/${deal.slug}`;
   if (dealUrl.includes('localhost') || dealUrl.includes('127.0.0.1')) {
-    dealUrl = deal.steamUrl || `https://store.steampowered.com/app/${deal.steamAppId}`;
+    dealUrl = deal.storeUrl || deal.steamUrl || `https://store.steampowered.com/app/${deal.steamAppId || ''}`;
   }
 
+  const isFree = deal.isFree || deal.salePrice === 0;
   const oldPriceFormatted = `$${deal.normalPrice.toFixed(2)}`;
-  const newPriceFormatted = `$${deal.salePrice.toFixed(2)}`;
+  const newPriceFormatted = isFree ? 'ÜCRETSİZ!' : `$${deal.salePrice.toFixed(2)}`;
 
   let ratingBadge = '';
-  if (deal.steamRatingPercent > 0) {
-    ratingBadge = `\n⭐ Steam Puanı: %${deal.steamRatingPercent} (${deal.steamRatingText || 'Çok Olumlu'})`;
+  if ((deal.steamRatingPercent || 0) > 0) {
+    ratingBadge = `\n⭐ Topluluk Puanı: %${deal.steamRatingPercent} (${deal.steamRatingText || 'Çok Olumlu'})`;
   }
 
   let genreTag = '';
@@ -24,24 +25,31 @@ export function formatTweetText(deal: Deal, siteUrl: string): string {
     genreTag = `\n🏷️ Tür: ${deal.genres.slice(0, 3).join(', ')}`;
   }
 
-  let hook = '🔥 Steam\'de Kaçırılmayacak Fırsat! 🎮';
-  if (deal.savingsPercentage >= 75) {
-    hook = '🚨 DEV STEAM İNDİRİMİ! Kaçırmayın! 🎮';
+  const storeName = deal.storeName || 'Steam';
+  let hook = `🔥 ${storeName}'de Kaçırılmayacak Fırsat! 🎮`;
+  if (isFree) {
+    hook = `🎁 ${storeName} Haftalık ÜCRETSİZ Oyunu! Kaçırmayın! 🎮`;
+  } else if (deal.savingsPercentage >= 75) {
+    hook = `🚨 DEV ${storeName.toUpperCase()} İNDİRİMİ! Kaçırmayın! 🎮`;
   } else if (deal.isHistoricalLow) {
-    hook = '⚡ Tarihi Dip Fiyat! Steam İndirimi 🎮';
+    hook = `⚡ Tarihi Dip Fiyat! ${storeName} İndirimi 🎮`;
   }
 
-  const uniqueTag = `Deal_${deal.steamAppId}_${Date.now().toString().slice(-4)}`;
+  const uniqueTag = `Deal_${deal.steamAppId || deal.id.replace(/[^a-zA-Z0-9]/g, '').slice(0, 6)}_${Date.now().toString().slice(-4)}`;
+
+  const discountLine = isFree
+    ? `🎁 %100 Ücretsiz: ${oldPriceFormatted} ➔ 0 TL / ÜCRETSİZ`
+    : `📉 %${Math.round(deal.savingsPercentage)} İndirim: ${oldPriceFormatted} ➔ ${newPriceFormatted}`;
 
   const tweet = `${hook}
 
 🎮 ${deal.title}
-📉 %${Math.round(deal.savingsPercentage)} İndirim: ${oldPriceFormatted} ➔ ${newPriceFormatted}${ratingBadge}${genreTag}
+${discountLine}${ratingBadge}${genreTag}
 
-👇 Oyun incelemesi, sistem gereksinimleri ve detaylar:
+👇 Oyun incelemesi ve fırsat detayları:
 🔗 ${dealUrl}
 
-#Steam #Steamİndirim #OyunFırsatı #${uniqueTag}`;
+#LootHub #Oyunİndirimi #${storeName.replace(/\s+/g, '')} #${uniqueTag}`;
 
   return tweet;
 }
