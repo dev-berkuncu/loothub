@@ -1,0 +1,12 @@
+{
+  "autoTweetEnabled": false,
+  "minDiscountPercentage": 30,
+  "minSteamRatingPercentage": 60,
+  "postIntervalMinutes": 60,
+  "siteName": "Steam İndirimleri & Fırsatlar",
+  "siteUrl": "http://localhost:3000",
+  "twitterApiKey": "3siTQTLu95sytNtVAGXItVGJq",
+  "twitterApiSecret": "qnfapWKcavLMOxgvuGWwyDKiVhiPh9ldGR4dQjIEBEisYncfZ1",
+  "twitterAccessToken": "226111671-37bQh7Jigw11OBbELAy2ukSeQGKgsyJTdBkQC9Sb",
+  "twitterAccessTokenSecret": "sniRy15y1bTVayNWAm1EcCVls9OcWbY0jDzWVyeCmzACw"
+}
