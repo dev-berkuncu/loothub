@@ -125,10 +125,10 @@ function generateGameHighlights(title: string, genres: string[], steamRatingPerc
   return { highlights, pros, cons };
 }
 
-// Fetch Steam Storefront details for screenshots, description, requirements
+// Fetch Steam Storefront details for screenshots, description, requirements, regional pricing
 async function fetchSteamAppDetails(steamAppId: string) {
   try {
-    const url = `https://store.steampowered.com/api/appdetails?appids=${steamAppId}&cc=us&l=turkish`;
+    const url = `https://store.steampowered.com/api/appdetails?appids=${steamAppId}&cc=tr&l=turkish`;
     const res = await axios.get(url, {
       timeout: 8000,
       headers: {
@@ -142,7 +142,7 @@ async function fetchSteamAppDetails(steamAppId: string) {
     }
   } catch (error: any) {
     try {
-      const fallbackUrl = `https://store.steampowered.com/api/appdetails?appids=${steamAppId}&cc=us`;
+      const fallbackUrl = `https://store.steampowered.com/api/appdetails?appids=${steamAppId}&cc=tr`;
       const resFallback = await axios.get(fallbackUrl, { timeout: 6000 });
       const dataFallback = resFallback.data?.[steamAppId];
       if (dataFallback?.success && dataFallback.data) {
@@ -174,9 +174,6 @@ export async function syncSteamDeals(limit = 40): Promise<{ added: number; updat
     for (const item of deals) {
       if (!item.steamAppID) continue;
 
-      const normalPrice = parseFloat(item.normalPrice);
-      const salePrice = parseFloat(item.salePrice);
-      const savingsPercentage = Math.round(parseFloat(item.savings));
       const steamRatingPercent = parseInt(item.steamRatingPercent, 10) || 0;
       const steamRatingCount = parseInt(item.steamRatingCount, 10) || 0;
       const metacriticScore = parseInt(item.metacriticScore, 10) || undefined;
@@ -191,6 +188,11 @@ export async function syncSteamDeals(limit = 40): Promise<{ added: number; updat
 
       // Check existing deal
       const existingDeal = getDealById(item.dealID);
+
+      // Default to CheapShark prices, then override with exact Steam TR price if available
+      let normalPrice = parseFloat(item.normalPrice);
+      let salePrice = parseFloat(item.salePrice);
+      let savingsPercentage = Math.round(parseFloat(item.savings));
 
       // Fetch Steam rich details
       let headerImage = `https://cdn.akamai.steamstatic.com/steam/apps/${item.steamAppID}/header.jpg`;
@@ -207,6 +209,13 @@ export async function syncSteamDeals(limit = 40): Promise<{ added: number; updat
 
       const steamDetails = await fetchSteamAppDetails(item.steamAppID);
       if (steamDetails) {
+        // Use exact Steam TR (MENA-USD) price if available
+        if (steamDetails.price_overview) {
+          normalPrice = steamDetails.price_overview.initial / 100;
+          salePrice = steamDetails.price_overview.final / 100;
+          savingsPercentage = steamDetails.price_overview.discount_percent || savingsPercentage;
+        }
+
         if (steamDetails.header_image) headerImage = steamDetails.header_image;
         if (steamDetails.capsule_image) capsuleImage = steamDetails.capsule_image;
 
