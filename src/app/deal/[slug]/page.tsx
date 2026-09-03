@@ -1,7 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import {
   TrendingDown,
   ThumbsUp,
@@ -96,13 +95,11 @@ export default function DealDetailPage({ params }: PageProps) {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Side: Images & Gallery */}
         <div className="lg:col-span-7 space-y-4">
-          <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden bg-steam-card border border-steam-accent shadow-2xl">
-            <Image
+          <div className="relative w-full rounded-2xl overflow-hidden bg-steam-card border border-steam-accent shadow-2xl">
+            <img
               src={deal.headerImage}
               alt={deal.title}
-              fill
-              priority
-              className="object-cover"
+              className="w-full h-auto max-h-[380px] object-cover block"
             />
             <div className="absolute top-4 right-4 z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-steam-discount text-steam-green font-black text-base shadow-xl border border-steam-green/40 backdrop-blur-md">
               <TrendingDown className="w-5 h-5" />
@@ -116,14 +113,13 @@ export default function DealDetailPage({ params }: PageProps) {
               {deal.screenshots.slice(0, 4).map((img, i) => (
                 <div
                   key={i}
-                  className="relative aspect-[16/9] rounded-lg overflow-hidden border border-steam-accent/60 bg-steam-card"
+                  className="rounded-lg overflow-hidden border border-steam-accent/60 bg-steam-card"
                 >
-                  <Image
+                  <img
                     src={img}
                     alt={`${deal.title} Ekran Görüntüsü ${i + 1}`}
-                    fill
-                    sizes="25vw"
-                    className="object-cover hover:scale-110 transition-transform duration-300"
+                    className="w-full aspect-[16/9] object-cover hover:scale-110 transition-transform duration-300 block"
+                    loading="lazy"
                   />
                 </div>
               ))}

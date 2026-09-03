@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import {
   Search,
   Flame,
@@ -64,7 +63,6 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
     }
   }, [search, activeTab, category, sortBy]);
 
-  // Only re-fetch if user interacts with filters
   useEffect(() => {
     if (hasFiltered) {
       fetchDeals();
@@ -102,8 +100,8 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
     <div className="space-y-10">
       {/* Hero Featured Deal */}
       {featuredDeal && !search && activeTab === 'all' && (
-        <section className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-steam-card via-steam-card to-steam-accent/40 border border-steam-blue/30 shadow-2xl">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center p-6 md:p-8">
+        <section className="rounded-2xl overflow-hidden bg-gradient-to-r from-steam-card via-steam-card to-steam-accent/40 border border-steam-blue/30 shadow-2xl p-6 md:p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
             <div className="lg:col-span-7 space-y-4">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="px-3 py-1 rounded-full bg-red-600/90 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1">
@@ -115,7 +113,7 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
                 </span>
               </div>
 
-              <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight leading-tight">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">
                 {featuredDeal.title}
               </h1>
 
@@ -156,15 +154,13 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
             <div className="lg:col-span-5 w-full">
               <Link
                 href={`/deal/${featuredDeal.slug}`}
-                className="block relative w-full aspect-[16/9] max-h-[300px] rounded-xl overflow-hidden shadow-xl group border border-steam-accent bg-steam-darker"
+                className="block w-full overflow-hidden rounded-xl border border-steam-accent bg-steam-darker group shadow-xl"
               >
-                <Image
+                {/* Standard bounded img tag - ZERO absolute stretch risk */}
+                <img
                   src={featuredDeal.headerImage}
                   alt={featuredDeal.title}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 40vw"
-                  priority
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="w-full h-auto max-h-[260px] object-cover group-hover:scale-105 transition-transform duration-500 block"
                 />
               </Link>
             </div>

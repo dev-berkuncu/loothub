@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { ThumbsUp, Sparkles, TrendingDown, ArrowRight } from 'lucide-react';
 import { Deal } from '@/lib/types';
 
@@ -17,13 +16,11 @@ export default function DealCard({ deal }: DealCardProps) {
     <div className="group relative rounded-xl bg-steam-card border border-steam-accent/50 hover:border-steam-blue transition-all duration-300 hover:shadow-xl hover:shadow-steam-blue/10 flex flex-col overflow-hidden">
       {/* Top Image & Badges */}
       <Link href={`/deal/${deal.slug}`} className="relative block w-full overflow-hidden bg-steam-darker">
-        <div className="relative aspect-[16/9] w-full">
-          <Image
+        <div className="w-full aspect-[16/9] overflow-hidden bg-steam-darker">
+          <img
             src={deal.headerImage || deal.capsuleImage || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f'}
             alt={deal.title}
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 block"
             loading="lazy"
           />
         </div>
