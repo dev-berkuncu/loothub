@@ -1,16 +1,45 @@
 'use client';
 
 import Link from 'next/link';
-import { ThumbsUp, Sparkles, TrendingDown, ArrowRight } from 'lucide-react';
+import { ThumbsUp, Sparkles, TrendingDown, ArrowRight, Gift } from 'lucide-react';
 import { Deal } from '@/lib/types';
 
 interface DealCardProps {
   deal: Deal;
 }
 
+const STORE_BADGES: Record<string, { label: string; bg: string; text: string; border: string }> = {
+  steam: {
+    label: 'Steam',
+    bg: 'bg-sky-950/80',
+    text: 'text-sky-300',
+    border: 'border-sky-500/40',
+  },
+  epic: {
+    label: 'Epic Games',
+    bg: 'bg-zinc-900/90',
+    text: 'text-zinc-100',
+    border: 'border-zinc-500/50',
+  },
+  gog: {
+    label: 'GOG',
+    bg: 'bg-purple-950/80',
+    text: 'text-purple-300',
+    border: 'border-purple-500/40',
+  },
+  humble: {
+    label: 'Humble',
+    bg: 'bg-rose-950/80',
+    text: 'text-rose-300',
+    border: 'border-rose-500/40',
+  },
+};
+
 export default function DealCard({ deal }: DealCardProps) {
+  const isFree = deal.isFree || deal.salePrice === 0;
   const isHighDiscount = deal.savingsPercentage >= 70;
-  const isTopRated = deal.steamRatingPercent >= 85;
+  const isTopRated = (deal.steamRatingPercent || 0) >= 85;
+  const storeBadge = STORE_BADGES[deal.store] || STORE_BADGES.steam;
 
   return (
     <div className="group relative rounded-xl bg-steam-card border border-steam-accent/50 hover:border-steam-blue transition-all duration-300 hover:shadow-xl hover:shadow-steam-blue/10 flex flex-col overflow-hidden">
@@ -25,19 +54,32 @@ export default function DealCard({ deal }: DealCardProps) {
           />
         </div>
 
-        {/* Discount Badge */}
+        {/* Store Badge (Top Left) */}
+        <div className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1.5">
+          <span
+            className={`px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider shadow backdrop-blur-sm border ${storeBadge.bg} ${storeBadge.text} ${storeBadge.border}`}
+          >
+            {storeBadge.label}
+          </span>
+
+          {isFree ? (
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500 text-steam-darker font-black text-[11px] uppercase tracking-wider shadow glow-green animate-pulse">
+              <Gift className="w-3 h-3" />
+              Ücretsiz
+            </span>
+          ) : isHighDiscount ? (
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-orange-600/90 text-white font-bold text-[11px] uppercase tracking-wider shadow">
+              <Sparkles className="w-3 h-3" />
+              Dev İndirim
+            </span>
+          ) : null}
+        </div>
+
+        {/* Discount Badge (Top Right) */}
         <div className="absolute top-2.5 right-2.5 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-steam-discount text-steam-green font-black text-sm shadow-lg backdrop-blur-sm border border-steam-green/30">
           <TrendingDown className="w-4 h-4" />
           <span>-%{Math.round(deal.savingsPercentage)}</span>
         </div>
-
-        {/* Historical low or hot badge */}
-        {isHighDiscount && (
-          <div className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1 px-2 py-0.5 rounded-md bg-orange-600/90 text-white font-bold text-[11px] uppercase tracking-wider shadow">
-            <Sparkles className="w-3 h-3" />
-            Dev İndirim
-          </div>
-        )}
       </Link>
 
       {/* Content */}
@@ -64,9 +106,9 @@ export default function DealCard({ deal }: DealCardProps) {
             </h3>
           </Link>
 
-          {/* Steam Rating */}
+          {/* Community Rating */}
           <div className="mt-2 flex items-center gap-2 text-xs">
-            {deal.steamRatingPercent > 0 ? (
+            {(deal.steamRatingPercent || 0) > 0 ? (
               <span
                 className={`flex items-center gap-1 font-semibold ${
                   isTopRated ? 'text-steam-blue' : 'text-gray-300'
@@ -79,7 +121,7 @@ export default function DealCard({ deal }: DealCardProps) {
                 </span>
               </span>
             ) : (
-              <span className="text-gray-400">Steam İncelemesi</span>
+              <span className="text-gray-400">{deal.storeName} Fırsatı</span>
             )}
           </div>
         </div>
@@ -90,8 +132,8 @@ export default function DealCard({ deal }: DealCardProps) {
             <span className="text-xs text-gray-400 line-through">
               ${deal.normalPrice.toFixed(2)}
             </span>
-            <span className="text-lg font-black text-white">
-              ${deal.salePrice.toFixed(2)}
+            <span className={`font-black text-lg ${isFree ? 'text-emerald-400' : 'text-white'}`}>
+              {isFree ? 'ÜCRETSİZ' : `$${deal.salePrice.toFixed(2)}`}
             </span>
           </div>
 

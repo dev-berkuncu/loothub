@@ -13,6 +13,7 @@ import {
   Building2,
   ArrowLeft,
   ShoppingBag,
+  Gift,
 } from 'lucide-react';
 import { getDealBySlug, getDeals } from '@/lib/db';
 import DealCard from '@/components/DealCard';
@@ -23,7 +24,34 @@ interface PageProps {
   };
 }
 
-// Generate dynamic SEO metadata for Google & Twitter Cards
+const STORE_BADGES: Record<string, { label: string; bg: string; text: string; border: string }> = {
+  steam: {
+    label: 'Steam',
+    bg: 'bg-sky-950/80',
+    text: 'text-sky-300',
+    border: 'border-sky-500/40',
+  },
+  epic: {
+    label: 'Epic Games',
+    bg: 'bg-zinc-900/90',
+    text: 'text-zinc-100',
+    border: 'border-zinc-500/50',
+  },
+  gog: {
+    label: 'GOG',
+    bg: 'bg-purple-950/80',
+    text: 'text-purple-300',
+    border: 'border-purple-500/40',
+  },
+  humble: {
+    label: 'Humble Store',
+    bg: 'bg-rose-950/80',
+    text: 'text-rose-300',
+    border: 'border-rose-500/40',
+  },
+};
+
+// Generate dynamic SEO metadata
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const deal = getDealBySlug(params.slug);
   if (!deal) {
@@ -33,8 +61,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-  const title = `${deal.title} %${Math.round(deal.savingsPercentage)} İndirimde! ($${deal.salePrice.toFixed(2)})`;
-  const description = `${deal.title}, Steam mağazasında %${Math.round(deal.savingsPercentage)} indirimle $${deal.salePrice.toFixed(2)} fiyatına düştü. Steam Puanı: %${deal.steamRatingPercent}. Oyun incelemesi, sistem gereksinimleri ve detaylar.`;
+  const isFree = deal.isFree || deal.salePrice === 0;
+  const storeTitle = deal.storeName || 'Steam';
+  const priceText = isFree ? 'ÜCRETSİZ!' : `$${deal.salePrice.toFixed(2)}`;
+  const title = `${deal.title} ${storeTitle}'de %${Math.round(deal.savingsPercentage)} İndirimde! (${priceText})`;
+  const description = `${deal.title}, ${storeTitle} mağazasında %${Math.round(deal.savingsPercentage)} indirim fırsatıyla ${priceText} fiyatına sunuluyor. Detaylı oyun incelemesi ve satın alma rehberi.`;
 
   return {
     title,
@@ -70,6 +101,10 @@ export default function DealDetailPage({ params }: PageProps) {
     notFound();
   }
 
+  const isFree = deal.isFree || deal.salePrice === 0;
+  const storeBadge = STORE_BADGES[deal.store] || STORE_BADGES.steam;
+  const targetUrl = deal.storeUrl || deal.affiliateUrl || deal.steamUrl || '#';
+
   // Fetch 4 similar or top deals for recommendations
   const { deals: relatedDeals } = getDeals({
     limit: 4,
@@ -87,7 +122,7 @@ export default function DealDetailPage({ params }: PageProps) {
           className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-400 hover:text-steam-blue transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Tüm İndirimlere Geri Dön
+          Tüm Fırsatlara Geri Dön
         </Link>
       </div>
 
@@ -103,7 +138,7 @@ export default function DealDetailPage({ params }: PageProps) {
             />
             <div className="absolute top-4 right-4 z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-steam-discount text-steam-green font-black text-base shadow-xl border border-steam-green/40 backdrop-blur-md">
               <TrendingDown className="w-5 h-5" />
-              <span>-%{Math.round(deal.savingsPercentage)} İndirim</span>
+              <span>{isFree ? 'ÜCRETSİZ' : `-%${Math.round(deal.savingsPercentage)} İndirim`}</span>
             </div>
           </div>
 
@@ -131,10 +166,23 @@ export default function DealDetailPage({ params }: PageProps) {
         <div className="lg:col-span-5 space-y-6">
           <div className="p-6 rounded-2xl bg-steam-card border border-steam-accent/60 shadow-xl space-y-6">
             <div>
-              {/* Genres */}
-              {deal.genres && deal.genres.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mb-3">
-                  {deal.genres.map((g) => (
+              {/* Store and Genres */}
+              <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                <span
+                  className={`text-xs font-black uppercase tracking-wider px-2.5 py-1 rounded-md border ${storeBadge.bg} ${storeBadge.text} ${storeBadge.border}`}
+                >
+                  {deal.storeName || 'Steam'}
+                </span>
+
+                {isFree && (
+                  <span className="text-xs font-black uppercase tracking-wider px-2.5 py-1 rounded-md bg-emerald-500 text-steam-darker flex items-center gap-1 shadow glow-green">
+                    <Gift className="w-3.5 h-3.5" />
+                    Ücretsiz Oyun
+                  </span>
+                )}
+
+                {deal.genres &&
+                  deal.genres.slice(0, 3).map((g) => (
                     <span
                       key={g}
                       className="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-steam-accent/40 text-steam-blue border border-steam-accent/60"
@@ -142,8 +190,7 @@ export default function DealDetailPage({ params }: PageProps) {
                       {g}
                     </span>
                   ))}
-                </div>
-              )}
+              </div>
 
               <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight leading-snug">
                 {deal.title}
@@ -169,40 +216,48 @@ export default function DealDetailPage({ params }: PageProps) {
             {/* Price Box */}
             <div className="p-4 rounded-xl bg-steam-darker/90 border border-steam-accent/70 flex items-center justify-between">
               <div>
-                <span className="text-xs text-gray-400 uppercase font-semibold">İndirimli Fiyat</span>
+                <span className="text-xs text-gray-400 uppercase font-semibold">
+                  {isFree ? 'Promosyon Durumu' : 'İndirimli Fiyat'}
+                </span>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-black text-white">
-                    ${deal.salePrice.toFixed(2)}
+                  <span className={`text-3xl font-black ${isFree ? 'text-emerald-400' : 'text-white'}`}>
+                    {isFree ? 'ÜCRETSİZ' : `$${deal.salePrice.toFixed(2)}`}
                   </span>
-                  <span className="text-sm text-gray-400 line-through">
-                    ${deal.normalPrice.toFixed(2)}
-                  </span>
+                  {deal.normalPrice > 0 && (
+                    <span className="text-sm text-gray-400 line-through">
+                      ${deal.normalPrice.toFixed(2)}
+                    </span>
+                  )}
                 </div>
               </div>
 
               <div className="text-right">
                 <span className="text-[11px] text-steam-green font-bold block">
-                  Tasarruf: ${(deal.normalPrice - deal.salePrice).toFixed(2)}
+                  {isFree ? 'Tasarruf: %100' : `Tasarruf: $${(deal.normalPrice - deal.salePrice).toFixed(2)}`}
                 </span>
                 {deal.isHistoricalLow && (
                   <span className="text-[10px] px-2 py-0.5 rounded bg-orange-600/90 text-white font-bold inline-block mt-1">
-                    Tarihi Dip Fiyat
+                    Tarihi Fırsat
                   </span>
                 )}
               </div>
             </div>
 
-            {/* Steam Review Score Badge */}
+            {/* Community Rating Score Badge */}
             <div className="p-4 rounded-xl bg-steam-accent/20 border border-steam-accent/50 flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-steam-blue/20 text-steam-blue flex items-center justify-center font-black">
                 <ThumbsUp className="w-5 h-5" />
               </div>
               <div>
                 <p className="text-sm font-bold text-white">
-                  Steam İnceleme Puanı: %{deal.steamRatingPercent}
+                  {(deal.steamRatingPercent || 0) > 0
+                    ? `Topluluk Puanı: %${deal.steamRatingPercent}`
+                    : `${deal.storeName || 'Mağaza'} Doğrulanmış Fırsat`}
                 </p>
                 <p className="text-xs text-gray-400">
-                  {deal.steamRatingText || 'Çok Olumlu'} ({deal.steamRatingCount.toLocaleString()} kullanıcı incelemesi)
+                  {(deal.steamRatingPercent || 0) > 0
+                    ? `${deal.steamRatingText || 'Çok Olumlu'} (${deal.steamRatingCount?.toLocaleString() || '1.000+'} kullanıcı)`
+                    : `${deal.storeName || 'Oyun'} mağazasında resmi indirimde`}
                 </p>
               </div>
             </div>
@@ -210,13 +265,15 @@ export default function DealDetailPage({ params }: PageProps) {
             {/* Action Buttons (Store Links) */}
             <div className="space-y-3 pt-2">
               <a
-                href={deal.steamUrl}
+                href={targetUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-steam-green to-lime-600 hover:from-lime-500 hover:to-lime-600 text-steam-darker font-black text-sm transition-all flex items-center justify-center gap-2 shadow-lg glow-green"
               >
                 <ShoppingBag className="w-4 h-4" />
-                Steam&apos;de Görüntüle ve Satın Al
+                {isFree
+                  ? `${deal.storeName || 'Epic Games'}'te Ücretsiz Kütüphaneye Ekle`
+                  : `${deal.storeName || 'Steam'}'de Görüntüle ve Satın Al`}
                 <ExternalLink className="w-4 h-4 ml-1 opacity-70" />
               </a>
             </div>
@@ -230,7 +287,7 @@ export default function DealDetailPage({ params }: PageProps) {
         <div className="p-6 md:p-8 rounded-2xl bg-steam-card border border-steam-accent/60 shadow-xl space-y-6">
           <h2 className="text-xl font-extrabold text-white flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-yellow-400" />
-            Neden Bu Oyunu Almalısınız?
+            Neden Bu Fırsatı Değerlendirmelisiniz?
           </h2>
 
           {/* Highlights */}
@@ -262,7 +319,7 @@ export default function DealDetailPage({ params }: PageProps) {
                     </li>
                   ))
                 ) : (
-                  <li>Yüksek indirim oranı ve kaliteli oynanış</li>
+                  <li>Yüksek indirim oranı ve avantajlı mağaza fiyatı</li>
                 )}
               </ul>
             </div>
@@ -336,7 +393,7 @@ export default function DealDetailPage({ params }: PageProps) {
       {/* Recommendations / Related Deals */}
       {filteredRelated.length > 0 && (
         <div className="space-y-4 pt-10 border-t border-steam-accent/40">
-          <h2 className="text-xl font-extrabold text-white">İlginizi Çekebilecek Benzer İndirimler</h2>
+          <h2 className="text-xl font-extrabold text-white">İlginizi Çekebilecek Diğer Fırsatlar</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             {filteredRelated.map((relDeal) => (
               <DealCard key={relDeal.id} deal={relDeal} />

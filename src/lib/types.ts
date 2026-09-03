@@ -1,6 +1,9 @@
 export interface Deal {
   id: string; // CheapShark dealID or unique ID
-  steamAppId: string;
+  steamAppId?: string;
+  store: 'steam' | 'epic' | 'gog' | 'humble';
+  storeName: string; // e.g. "Steam", "Epic Games", "GOG", "Humble Store"
+  storeUrl: string;
   title: string;
   slug: string;
   normalPrice: number;
@@ -11,9 +14,9 @@ export interface Deal {
   capsuleImage?: string;
   screenshots: string[]; // JSON array of URLs
   genres: string[]; // JSON array of genre strings
-  steamRatingText: string; // e.g. "Very Positive", "Overwhelmingly Positive"
-  steamRatingPercent: number; // e.g. 88
-  steamRatingCount: number;
+  steamRatingText?: string; // e.g. "Very Positive", "Overwhelmingly Positive"
+  steamRatingPercent?: number; // e.g. 88
+  steamRatingCount?: number;
   metacriticScore?: number;
   releaseDate?: string;
   publisher?: string;
@@ -25,9 +28,10 @@ export interface Deal {
   cons?: string[]; // Potential downsides
   minimumRequirements?: string;
   recommendedRequirements?: string;
-  steamUrl: string;
+  steamUrl?: string;
   affiliateUrl?: string;
   isHistoricalLow: boolean;
+  isFree?: boolean;
   postedToTwitter: boolean;
   twitterPostId?: string;
   twitterPostedAt?: string;

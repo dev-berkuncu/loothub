@@ -12,6 +12,7 @@ import {
   RefreshCw,
   ArrowRight,
   Gamepad2,
+  Gift,
 } from 'lucide-react';
 import DealCard from '@/components/DealCard';
 import { Deal } from '@/lib/types';
@@ -31,6 +32,7 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
   // Filters
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<'all' | 'high_discount' | 'under_5' | 'top_rated'>('all');
+  const [selectedStore, setSelectedStore] = useState<'all' | 'free' | 'steam' | 'epic' | 'gog' | 'humble'>('all');
   const [category, setCategory] = useState('all');
   const [sortBy, setSortBy] = useState<'savings' | 'price_asc' | 'price_desc' | 'rating' | 'newest'>('savings');
 
@@ -41,6 +43,10 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
       if (search) params.set('search', search);
       if (category !== 'all') params.set('category', category);
       if (sortBy) params.set('sortBy', sortBy);
+
+      if (selectedStore !== 'all') {
+        params.set('store', selectedStore);
+      }
 
       if (activeTab === 'high_discount') {
         params.set('minSavings', '70');
@@ -61,7 +67,7 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
     } finally {
       setLoading(false);
     }
-  }, [search, activeTab, category, sortBy]);
+  }, [search, activeTab, selectedStore, category, sortBy]);
 
   useEffect(() => {
     if (hasFiltered) {
@@ -80,7 +86,7 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
       const res = await fetch('/api/deals/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ limit: 40 }),
+        body: JSON.stringify({ limit: 45 }),
       });
       const data = await res.json();
       if (data.success) {
@@ -94,12 +100,15 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
     }
   };
 
-  const featuredDeal = deals.find((d) => d.savingsPercentage >= 65 && d.steamRatingPercent >= 80) || deals[0];
+  const featuredDeal =
+    deals.find((d) => d.isFree || d.salePrice === 0) ||
+    deals.find((d) => d.savingsPercentage >= 65 && (d.steamRatingPercent || 0) >= 80) ||
+    deals[0];
 
   return (
     <div className="space-y-10">
       {/* Hero Featured Deal */}
-      {featuredDeal && !search && activeTab === 'all' && (
+      {featuredDeal && !search && activeTab === 'all' && selectedStore === 'all' && (
         <section className="rounded-2xl overflow-hidden bg-gradient-to-r from-steam-card via-steam-card to-steam-accent/40 border border-steam-blue/30 shadow-2xl p-6 md:p-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
             <div className="lg:col-span-7 space-y-4">
@@ -108,8 +117,13 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
                   <Flame className="w-3.5 h-3.5" />
                   Günün Öne Çıkan Fırsatı
                 </span>
+
+                <span className="px-2.5 py-1 rounded-md bg-steam-card border border-steam-accent text-steam-blue text-xs font-bold uppercase tracking-wider">
+                  {featuredDeal.storeName || 'Steam'}
+                </span>
+
                 <span className="px-2.5 py-1 rounded-md bg-steam-discount text-steam-green font-black text-sm border border-steam-green/30">
-                  -%{Math.round(featuredDeal.savingsPercentage)} İndirim
+                  {featuredDeal.salePrice === 0 ? 'ÜCRETSİZ' : `-%${Math.round(featuredDeal.savingsPercentage)} İndirim`}
                 </span>
               </div>
 
@@ -119,7 +133,7 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
 
               <p className="text-gray-300 text-sm md:text-base line-clamp-2 max-w-2xl leading-relaxed">
                 {featuredDeal.shortDescription ||
-                  'Kaçırılmayacak indirim oranıyla Steam mağazasında satışta. Detaylı inceleme ve sistem gereksinimleri için tıklayın.'}
+                  'Kaçırılmayacak indirim oranıyla oyun mağazasında satışta. Detaylı inceleme ve sistem gereksinimleri için tıklayın.'}
               </p>
 
               <div className="flex flex-wrap items-center gap-4 pt-2">
@@ -127,12 +141,12 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
                   <span className="text-sm text-gray-400 line-through font-medium">
                     ${featuredDeal.normalPrice.toFixed(2)}
                   </span>
-                  <span className="text-3xl font-black text-white">
-                    ${featuredDeal.salePrice.toFixed(2)}
+                  <span className={`text-3xl font-black ${featuredDeal.salePrice === 0 ? 'text-emerald-400' : 'text-white'}`}>
+                    {featuredDeal.salePrice === 0 ? 'ÜCRETSİZ' : `$${featuredDeal.salePrice.toFixed(2)}`}
                   </span>
                 </div>
 
-                {featuredDeal.steamRatingPercent > 0 && (
+                {(featuredDeal.steamRatingPercent || 0) > 0 && (
                   <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-steam-accent/40 border border-steam-accent text-steam-blue text-xs font-bold">
                     <ThumbsUp className="w-4 h-4" />
                     %{featuredDeal.steamRatingPercent} {featuredDeal.steamRatingText}
@@ -145,7 +159,7 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
                   href={`/deal/${featuredDeal.slug}`}
                   className="px-6 py-3 rounded-xl bg-steam-blue hover:bg-blue-400 text-steam-darker font-black text-sm transition-all flex items-center gap-2 shadow-lg glow-blue"
                 >
-                  Detaylı İncele ve Satın Al
+                  Detaylı İncele ve Al
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
@@ -156,7 +170,6 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
                 href={`/deal/${featuredDeal.slug}`}
                 className="block w-full overflow-hidden rounded-xl border border-steam-accent bg-steam-darker group shadow-xl"
               >
-                {/* Standard bounded img tag - ZERO absolute stretch risk */}
                 <img
                   src={featuredDeal.headerImage}
                   alt={featuredDeal.title}
@@ -170,26 +183,98 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
 
       {/* Filter & Search Bar */}
       <section className="space-y-4">
+        {/* Store Selector Tabs */}
+        <div className="flex flex-wrap items-center gap-2 pb-1 border-b border-steam-accent/30">
+          <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mr-1">Mağaza:</span>
+
+          <button
+            onClick={() => handleFilterChange(() => setSelectedStore('all'))}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+              selectedStore === 'all'
+                ? 'bg-steam-blue text-steam-darker font-black shadow-md'
+                : 'bg-steam-card border border-steam-accent/50 text-gray-300 hover:text-white'
+            }`}
+          >
+            <Gamepad2 className="w-3.5 h-3.5" />
+            Tüm Mağazalar
+          </button>
+
+          <button
+            onClick={() => handleFilterChange(() => setSelectedStore('free'))}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+              selectedStore === 'free'
+                ? 'bg-emerald-500 text-steam-darker font-black shadow-md'
+                : 'bg-steam-card border border-emerald-500/40 text-emerald-400 hover:bg-emerald-950/40'
+            }`}
+          >
+            <Gift className="w-3.5 h-3.5" />
+            🎁 Ücretsiz Oyunlar
+          </button>
+
+          <button
+            onClick={() => handleFilterChange(() => setSelectedStore('steam'))}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+              selectedStore === 'steam'
+                ? 'bg-sky-500 text-steam-darker font-black shadow-md'
+                : 'bg-steam-card border border-sky-500/40 text-sky-400 hover:bg-sky-950/40'
+            }`}
+          >
+            Steam
+          </button>
+
+          <button
+            onClick={() => handleFilterChange(() => setSelectedStore('epic'))}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+              selectedStore === 'epic'
+                ? 'bg-zinc-200 text-zinc-950 font-black shadow-md'
+                : 'bg-steam-card border border-zinc-500/40 text-zinc-300 hover:bg-zinc-900/60'
+            }`}
+          >
+            ⚡ Epic Games
+          </button>
+
+          <button
+            onClick={() => handleFilterChange(() => setSelectedStore('gog'))}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+              selectedStore === 'gog'
+                ? 'bg-purple-500 text-white font-black shadow-md'
+                : 'bg-steam-card border border-purple-500/40 text-purple-300 hover:bg-purple-950/40'
+            }`}
+          >
+            🟣 GOG
+          </button>
+
+          <button
+            onClick={() => handleFilterChange(() => setSelectedStore('humble'))}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+              selectedStore === 'humble'
+                ? 'bg-rose-500 text-white font-black shadow-md'
+                : 'bg-steam-card border border-rose-500/40 text-rose-300 hover:bg-rose-950/40'
+            }`}
+          >
+            🔴 Humble Store
+          </button>
+        </div>
+
+        {/* Quick Filter Tabs & Refresh */}
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-          {/* Quick Filter Tabs */}
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => handleFilterChange(() => setActiveTab('all'))}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                 activeTab === 'all'
-                  ? 'bg-steam-blue text-steam-darker font-black shadow-md'
+                  ? 'bg-steam-accent text-steam-blue font-black shadow-sm'
                   : 'bg-steam-card border border-steam-accent/50 text-gray-300 hover:text-white hover:bg-steam-accent/40'
               }`}
             >
-              <Gamepad2 className="w-3.5 h-3.5" />
               Tüm Fırsatlar
             </button>
 
             <button
               onClick={() => handleFilterChange(() => setActiveTab('high_discount'))}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                 activeTab === 'high_discount'
-                  ? 'bg-steam-blue text-steam-darker font-black shadow-md'
+                  ? 'bg-steam-accent text-steam-blue font-black shadow-sm'
                   : 'bg-steam-card border border-steam-accent/50 text-gray-300 hover:text-white hover:bg-steam-accent/40'
               }`}
             >
@@ -199,9 +284,9 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
 
             <button
               onClick={() => handleFilterChange(() => setActiveTab('under_5'))}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                 activeTab === 'under_5'
-                  ? 'bg-steam-blue text-steam-darker font-black shadow-md'
+                  ? 'bg-steam-accent text-steam-blue font-black shadow-sm'
                   : 'bg-steam-card border border-steam-accent/50 text-gray-300 hover:text-white hover:bg-steam-accent/40'
               }`}
             >
@@ -211,9 +296,9 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
 
             <button
               onClick={() => handleFilterChange(() => setActiveTab('top_rated'))}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                 activeTab === 'top_rated'
-                  ? 'bg-steam-blue text-steam-darker font-black shadow-md'
+                  ? 'bg-steam-accent text-steam-blue font-black shadow-sm'
                   : 'bg-steam-card border border-steam-accent/50 text-gray-300 hover:text-white hover:bg-steam-accent/40'
               }`}
             >
@@ -229,7 +314,7 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
             className="px-4 py-2 rounded-xl bg-steam-card hover:bg-steam-accent/60 border border-steam-accent/70 text-steam-blue text-xs font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
-            {syncing ? 'İndirimler Taranıyor...' : 'İndirimleri Yenile'}
+            {syncing ? 'Tüm Mağazalar Taranıyor...' : 'Tüm Mağazaları Güncelle'}
           </button>
         </div>
 
@@ -240,7 +325,7 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
             <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Oyun adı veya açıklama ara..."
+              placeholder="Oyun adı veya açıklama ara (Steam, Epic, GOG, Humble)..."
               value={search}
               onChange={(e) => handleFilterChange(() => setSearch(e.target.value))}
               className="w-full pl-10 pr-4 py-2 rounded-lg bg-steam-darker/80 border border-steam-accent/60 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-steam-blue transition-colors"
@@ -275,7 +360,7 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
               className="w-full px-3 py-2 rounded-lg bg-steam-darker/80 border border-steam-accent/60 text-white text-sm focus:outline-none focus:border-steam-blue transition-colors"
             >
               <option value="savings">En Yüksek İndirim Oranı</option>
-              <option value="rating">En Yüksek Steam Puanı</option>
+              <option value="rating">En Yüksek Topluluk Puanı</option>
               <option value="price_asc">Fiyat: En Düşük</option>
               <option value="price_desc">Fiyat: En Yüksek</option>
               <option value="newest">En Yeni Eklenenler</option>
@@ -289,7 +374,7 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-extrabold text-white flex items-center gap-2">
             <TrendingDown className="w-5 h-5 text-steam-green" />
-            Aktif Steam Fırsatları
+            Aktif Fırsatlar & İndirimler
             <span className="text-xs px-2 py-0.5 rounded-full bg-steam-card border border-steam-accent text-gray-400 font-normal">
               {total} Oyun
             </span>
@@ -314,9 +399,9 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
         ) : (
           <div className="text-center py-16 px-4 rounded-2xl bg-steam-card/30 border border-steam-accent/40 space-y-4">
             <Gamepad2 className="w-12 h-12 text-steam-blue mx-auto opacity-50" />
-            <h3 className="text-lg font-bold text-white">Henüz Listelenecek İndirim Bulunamadı</h3>
+            <h3 className="text-lg font-bold text-white">Henüz Listelenecek Fırsat Bulunamadı</h3>
             <p className="text-sm text-gray-400 max-w-md mx-auto">
-              Veritabanında henüz oyun listelenmedi. Steam&apos;deki canlı indirimleri hemen çekmek için aşağıdaki butona basın.
+              Seçtiğiniz filtreye uygun indirim bulunamadı veya veritabanını güncellemeniz gerekiyor. Tüm mağazalardaki güncel fırsatları çekmek için aşağıdaki butona basın.
             </p>
             <button
               onClick={handleSyncNow}
@@ -324,7 +409,7 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
               className="px-6 py-2.5 rounded-xl bg-steam-blue text-steam-darker font-bold text-sm hover:bg-blue-400 transition-all inline-flex items-center gap-2 shadow-lg glow-blue"
             >
               <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
-              {syncing ? 'Steam İndirimleri Çekiliyor...' : 'Canlı Steam İndirimlerini Çek'}
+              {syncing ? 'Mağazalar Taranıyor...' : 'Canlı Fırsatları Çek'}
             </button>
           </div>
         )}

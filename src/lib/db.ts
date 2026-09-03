@@ -100,6 +100,8 @@ export function getDealBySteamAppId(steamAppId: string): Deal | null {
 export interface GetDealsFilter {
   search?: string;
   category?: string;
+  store?: string;
+  isFree?: boolean;
   minSavings?: number;
   maxPrice?: number;
   minRating?: number;
@@ -122,6 +124,18 @@ export function getDeals(filter: GetDealsFilter = {}): { deals: Deal[]; total: n
     );
   }
 
+  if (filter.store && filter.store !== 'all') {
+    if (filter.store === 'free') {
+      deals = deals.filter((d) => d.isFree || d.salePrice === 0);
+    } else {
+      deals = deals.filter((d) => d.store === filter.store);
+    }
+  }
+
+  if (filter.isFree) {
+    deals = deals.filter((d) => d.isFree || d.salePrice === 0);
+  }
+
   if (filter.minSavings) {
     deals = deals.filter((d) => d.savingsPercentage >= filter.minSavings!);
   }
@@ -131,7 +145,7 @@ export function getDeals(filter: GetDealsFilter = {}): { deals: Deal[]; total: n
   }
 
   if (filter.minRating) {
-    deals = deals.filter((d) => d.steamRatingPercent >= filter.minRating!);
+    deals = deals.filter((d) => (d.steamRatingPercent || 0) >= filter.minRating!);
   }
 
   if (filter.unpostedOnly) {

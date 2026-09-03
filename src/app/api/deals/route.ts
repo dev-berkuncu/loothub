@@ -6,6 +6,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search') || undefined;
     const category = searchParams.get('category') || undefined;
+    const store = searchParams.get('store') || undefined;
     const minSavings = searchParams.get('minSavings') ? Number(searchParams.get('minSavings')) : undefined;
     const maxPrice = searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : undefined;
     const minRating = searchParams.get('minRating') ? Number(searchParams.get('minRating')) : undefined;
@@ -18,6 +19,7 @@ export async function GET(request: NextRequest) {
     const result = getDeals({
       search,
       category,
+      store,
       minSavings,
       maxPrice,
       minRating,
