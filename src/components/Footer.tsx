@@ -1,82 +1,123 @@
+'use client';
+
 import Link from 'next/link';
-import { Gamepad2 } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 export default function Footer() {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    alert('Loot Dispatch haftalık editoryal bültenine başarıyla kaydoldunuz!');
+  };
+
   return (
-    <footer className="border-t border-steam-accent/40 bg-steam-darker/90 mt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Brand Info */}
-          <div className="md:col-span-2 space-y-4">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-steam-blue flex items-center justify-center">
-                <Gamepad2 className="w-5 h-5 text-steam-darker" />
-              </div>
-              <span className="text-lg font-black tracking-tight text-white">
-                LOOT<span className="text-steam-blue">HUB</span>
-              </span>
-            </Link>
-            <p className="text-sm text-gray-400 max-w-md leading-relaxed">
-              LootHub; dijital oyun ekosistemindeki en avantajlı fiyat tekliflerini, tarihi dip indirimleri ve topluluk değerlendirmelerini anlık olarak analiz eden bağımsız bir oyun keşif ve fiyat takip platformudur.
-            </p>
-            <p className="text-xs text-gray-500">
-              © {new Date().getFullYear()} LootHub. Tüm hakları saklıdır. Steam ve Steam logosu Valve Corporation&apos;a aittir.
+    <footer className="mt-24">
+      {/* Newsletter (Orbital CTA) */}
+      <section
+        id="bulten"
+        className="rounded-[var(--radius)] bg-ink text-paper p-8 md:p-12 border border-ink relative overflow-hidden mb-12"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+          <div className="lg:col-span-7 space-y-3">
+            <span className="font-mono text-[10px] uppercase tracking-mono text-lime font-bold">
+              HAFTALIK EDİTORYAL SEÇKİ
+            </span>
+            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tighter leading-tight text-white">
+              Gürültü yok.<br />
+              Sadece en iyi oyunlar.
+            </h2>
+            <p className="text-xs md:text-sm text-paper/70 font-sans max-w-xl leading-relaxed">
+              Haftada bir gün, algoritmaların değil editörlerimizin onayladığı kaçırılmayacak indirimleri ve ücretsiz oyunları doğrudan gelen kutunuza iletiyoruz.
             </p>
           </div>
 
-          {/* Quick Categories */}
-          <div>
-            <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-3">Keşfet</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li>
-                <Link href="/?minSavings=75" className="hover:text-steam-blue transition-colors">
-                  %75+ Fırsatlar
-                </Link>
-              </li>
-              <li>
-                <Link href="/?maxPrice=5" className="hover:text-steam-blue transition-colors">
-                  Bütçe Dostu ($5 Altı)
-                </Link>
-              </li>
-              <li>
-                <Link href="/?minRating=85" className="hover:text-steam-blue transition-colors">
-                  En Yüksek Puanlılar
-                </Link>
-              </li>
-              <li>
-                <Link href="/?category=action" className="hover:text-steam-blue transition-colors">
-                  Aksiyon Oyunları
-                </Link>
-              </li>
-              <li>
-                <Link href="/?category=rpg" className="hover:text-steam-blue transition-colors">
-                  RPG / Rol Yapma
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Platform Info */}
-          <div>
-            <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-3">Platform</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li>
-                <span className="text-xs text-gray-400 block">
-                  Veri Kaynağı: Steam Storefront & Valve Resmi Mağaza Ağı
-                </span>
-              </li>
-              <li>
-                <span className="text-xs text-gray-500 block mt-2">
-                  Bölgesel Fiyatlandırma: Türkiye (MENA-USD) ve Global Fiyat Analizi
-                </span>
-              </li>
-            </ul>
-          </div>
+          <form onSubmit={handleSubmit} className="lg:col-span-5 space-y-2">
+            <label htmlFor="newsletter-email" className="font-mono text-[9px] uppercase tracking-mono text-paper/60 block font-medium">
+              E-POSTA ADRESİNİZ
+            </label>
+            <div className="flex items-stretch gap-2">
+              <input
+                id="newsletter-email"
+                type="email"
+                placeholder="ornek@alanadi.com"
+                required
+                className="flex-1 px-4 py-2.5 rounded-[var(--radius)] bg-paper/10 border border-paper/20 text-white placeholder-paper/40 text-xs font-mono focus:outline-none focus:border-lime transition-colors"
+              />
+              <button
+                type="submit"
+                className="px-5 py-2.5 rounded-[var(--radius)] bg-lime text-ink font-sans font-extrabold text-xs uppercase tracking-wider hover:bg-white transition-all flex items-center gap-1.5 shrink-0"
+              >
+                KATIL <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+            <small className="font-mono text-[9px] text-paper/40 block mt-1">
+              İstediğiniz an tek tıkla abonelikten ayrılabilirsiniz.
+            </small>
+          </form>
         </div>
+      </section>
 
-        <div className="border-t border-steam-accent/30 mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
-          <p>Tüm fiyat ve indirim verileri Steam mağazasından anlık olarak doğrulanmaktadır.</p>
-          <p>LootHub — Akıllı Oyun & İndirim İstihbarat Platformu</p>
+      {/* Editorial Colophon & Links */}
+      <div className="pt-8 pb-12 border-t border-ink/20">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+          {/* Brand & Manifesto */}
+          <div className="md:col-span-6 space-y-3">
+            <div className="flex items-center gap-3">
+              <span className="brand-mark">
+                <i />
+                <i />
+                <i />
+                <i />
+              </span>
+              <span className="font-black text-lg tracking-tighter text-ink leading-none">
+                LOOT<span className="font-normal opacity-60">DISPATCH</span>
+              </span>
+            </div>
+            <p className="text-xs text-muted font-sans leading-relaxed max-w-md">
+              Loot Dispatch; Steam, Epic Games, GOG ve Humble Store üzerindeki fiyat dalgalanmalarını ve indirim fırsatlarını editoryal disiplinle raporlayan bağımsız bir dijital yayındır.
+            </p>
+            <p className="font-mono text-[10px] text-muted uppercase tracking-mono">
+              © {new Date().getFullYear()} LOOT DISPATCH · HER HAKKI SAKLIDIR.
+            </p>
+          </div>
+
+          {/* Platforms */}
+          <div className="md:col-span-3 space-y-2">
+            <h4 className="font-mono text-[10px] uppercase tracking-mono font-bold text-ink">
+              MAĞAZALAR
+            </h4>
+            <ul className="space-y-1.5 text-xs text-muted font-mono uppercase tracking-wide">
+              <li>
+                <Link href="/#filtreler" className="hover:text-ink transition-colors">
+                  Steam Fırsatları
+                </Link>
+              </li>
+              <li>
+                <Link href="/#filtreler" className="hover:text-ink transition-colors">
+                  Epic Games & Ücretsiz
+                </Link>
+              </li>
+              <li>
+                <Link href="/#filtreler" className="hover:text-ink transition-colors">
+                  GOG DRM-Free
+                </Link>
+              </li>
+              <li>
+                <Link href="/#filtreler" className="hover:text-ink transition-colors">
+                  Humble Store Paketleri
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Legal Notice */}
+          <div className="md:col-span-3 space-y-2">
+            <h4 className="font-mono text-[10px] uppercase tracking-mono font-bold text-ink">
+              YASAL BİLGİ
+            </h4>
+            <p className="text-[11px] text-muted font-sans leading-relaxed">
+              Loot Dispatch bağımsız bir editoryal yayındır. Steam logosu Valve Corporation&apos;a, Epic Games logosu Epic Games Inc.&apos;e aittir.
+            </p>
+          </div>
         </div>
       </div>
     </footer>

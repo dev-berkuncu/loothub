@@ -1,38 +1,38 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import Navbar from '@/components/Navbar';
+import SignalStrip from '@/components/SignalStrip';
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   title: {
-    default: 'LootHub | Akıllı Steam Fırsat & Oyun Keşif Platformu',
-    template: '%s | LootHub',
+    default: 'Loot Dispatch — Editoryal Oyun & İndirim Raporu',
+    template: '%s | Loot Dispatch',
   },
   description:
-    'LootHub; Steam üzerindeki en avantajlı oyun indirimlerini, tarihi dip fiyatları, sistem gereksinimlerini ve detaylı oyun analizlerini sunan dijital keşif platformudur.',
+    'Loot Dispatch; Steam, Epic Games, GOG ve Humble Store üzerindeki en iyi fırsatları, ücretsiz oyunları ve oyun dünyasındaki gelişmeleri neo-brutalist editoryal bir disiplinle sunan dijital keşif yayınıdır.',
   keywords: [
-    'LootHub',
-    'Steam İndirimleri',
+    'Loot Dispatch',
+    'Oyun İndirimleri',
     'Steam Fırsatları',
-    'En Ucuz Oyunlar',
-    'Steam Deals',
-    'Steam Sale',
+    'Epic Games Ücretsiz',
+    'GOG İndirimleri',
+    'Humble Store',
     'Oyun İncelemeleri',
-    'Oyun Fiyat Takibi',
-    'Oyun Rehberi',
+    'Editoryal Oyun Yayını',
   ],
   openGraph: {
     type: 'website',
     locale: 'tr_TR',
-    siteName: 'LootHub',
-    title: 'LootHub - Günün En İyi Oyun Fırsatları & İnceleme Rehberi',
-    description: 'Steam üzerindeki en iyi indirimler, kullanıcı puanları ve oyun incelemeleri.',
+    siteName: 'Loot Dispatch',
+    title: 'Loot Dispatch — Editoryal Oyun & İndirim Raporu',
+    description: 'Steam, Epic Games, GOG ve Humble Store üzerindeki en iyi oyun fırsatları ve tarafsız editoryal incelemeler.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'LootHub - Akıllı Oyun Fırsat Platformu',
-    description: 'Günün en popüler Steam indirimleri ve detaylı oyun analizleri.',
+    title: 'Loot Dispatch — Editoryal Oyun & İndirim Raporu',
+    description: 'Dijital oyun dünyasının en iyi fırsatları ve editoryal analizleri.',
   },
 };
 
@@ -41,22 +41,20 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const adsenseId = process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID;
-
   return (
-    <html lang="tr" className="dark">
+    <html lang="tr">
       <head>
-        {adsenseId && (
-          <script
-            async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseId}`}
-            crossOrigin="anonymous"
-          />
-        )}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet"
+        />
       </head>
-      <body className="flex flex-col min-h-screen antialiased bg-steam-darker text-steam-text">
+      <body className="flex flex-col min-h-screen antialiased bg-paper text-ink selection:bg-lime selection:text-ink">
         <Navbar />
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <SignalStrip />
+        <main className="flex-1 max-w-[1380px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {children}
         </main>
         <Footer />

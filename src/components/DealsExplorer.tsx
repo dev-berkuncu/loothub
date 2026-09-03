@@ -4,15 +4,13 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import {
   Search,
-  Flame,
-  Sparkles,
-  TrendingDown,
-  Tag,
-  ThumbsUp,
-  RefreshCw,
   ArrowRight,
-  Gamepad2,
+  ArrowUpRight,
+  Radio,
+  RefreshCw,
   Gift,
+  Flame,
+  Zap,
 } from 'lucide-react';
 import DealCard from '@/components/DealCard';
 import { Deal } from '@/lib/types';
@@ -31,7 +29,6 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
 
   // Filters
   const [search, setSearch] = useState('');
-  const [activeTab, setActiveTab] = useState<'all' | 'high_discount' | 'under_5' | 'top_rated'>('all');
   const [selectedStore, setSelectedStore] = useState<'all' | 'free' | 'steam' | 'epic' | 'gog' | 'humble'>('all');
   const [category, setCategory] = useState('all');
   const [sortBy, setSortBy] = useState<'savings' | 'price_asc' | 'price_desc' | 'rating' | 'newest'>('savings');
@@ -48,15 +45,7 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
         params.set('store', selectedStore);
       }
 
-      if (activeTab === 'high_discount') {
-        params.set('minSavings', '70');
-      } else if (activeTab === 'under_5') {
-        params.set('maxPrice', '5');
-      } else if (activeTab === 'top_rated') {
-        params.set('minRating', '85');
-      }
-
-      params.set('limit', '30');
+      params.set('limit', '36');
 
       const res = await fetch(`/api/deals?${params.toString()}`);
       const data = await res.json();
@@ -67,7 +56,7 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
     } finally {
       setLoading(false);
     }
-  }, [search, activeTab, selectedStore, category, sortBy]);
+  }, [search, selectedStore, category, sortBy]);
 
   useEffect(() => {
     if (hasFiltered) {
@@ -100,235 +89,214 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
     }
   };
 
-  const featuredDeal =
+  // Spotlight Deal
+  const spotlightDeal =
     deals.find((d) => d.isFree || d.salePrice === 0) ||
-    deals.find((d) => d.savingsPercentage >= 65 && (d.steamRatingPercent || 0) >= 80) ||
+    deals.find((d) => d.savingsPercentage >= 70) ||
     deals[0];
 
+  // Top 3 for the Dispatch Board
+  const boardDeals = deals.filter((d) => d.id !== spotlightDeal?.id).slice(0, 3);
+
   return (
-    <div className="space-y-10">
-      {/* Hero Featured Deal */}
-      {featuredDeal && !search && activeTab === 'all' && selectedStore === 'all' && (
-        <section className="rounded-2xl overflow-hidden bg-gradient-to-r from-steam-card via-steam-card to-steam-accent/40 border border-steam-blue/30 shadow-2xl p-6 md:p-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-            <div className="lg:col-span-7 space-y-4">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="px-3 py-1 rounded-full bg-red-600/90 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1">
-                  <Flame className="w-3.5 h-3.5" />
-                  Günün Öne Çıkan Fırsatı
+    <div className="space-y-12">
+      {/* Editorial Hero Spotlight + Dispatch Board (Canlı Hat Pano) */}
+      {spotlightDeal && !search && selectedStore === 'all' && (
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+          {/* Main Editorial Spotlight (Col 8) */}
+          <div className="lg:col-span-8 rounded-[var(--radius)] border border-ink bg-white/60 p-6 md:p-8 flex flex-col justify-between relative overflow-hidden shadow-sm">
+            <div className="space-y-4">
+              {/* Eyebrow & Badges */}
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="font-mono text-[10px] uppercase tracking-mono text-ink font-bold bg-lime px-2 py-1 rounded-[2px] border border-ink flex items-center gap-1.5">
+                  <Zap className="w-3 h-3 text-ink" />
+                  GÜNÜN MANŞETİ
                 </span>
-
-                <span className="px-2.5 py-1 rounded-md bg-steam-card border border-steam-accent text-steam-blue text-xs font-bold uppercase tracking-wider">
-                  {featuredDeal.storeName || 'Steam'}
+                <span className="font-mono text-[10px] uppercase tracking-mono text-muted">
+                  {spotlightDeal.storeName || 'STEAM'} · EDİTORYAL RAPOR
                 </span>
-
-                <span className="px-2.5 py-1 rounded-md bg-steam-discount text-steam-green font-black text-sm border border-steam-green/30">
-                  {featuredDeal.salePrice === 0 ? 'ÜCRETSİZ' : `-%${Math.round(featuredDeal.savingsPercentage)} İndirim`}
+                <span className="font-mono text-[10px] uppercase tracking-mono text-ink font-bold ml-auto border border-ink px-2 py-0.5 rounded-[2px]">
+                  {spotlightDeal.salePrice === 0
+                    ? 'ÜCRETSİZ'
+                    : `−%${Math.round(spotlightDeal.savingsPercentage)}`}
                 </span>
               </div>
 
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">
-                {featuredDeal.title}
+              {/* Huge Display Title */}
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-ink tracking-tighter leading-[0.95]">
+                {spotlightDeal.title}
               </h1>
 
-              <p className="text-gray-300 text-sm md:text-base line-clamp-2 max-w-2xl leading-relaxed">
-                {featuredDeal.shortDescription ||
-                  'Kaçırılmayacak indirim oranıyla oyun mağazasında satışta. Detaylı inceleme ve sistem gereksinimleri için tıklayın.'}
+              {/* Editorial Description */}
+              <p className="text-sm md:text-base text-muted font-sans line-clamp-3 leading-relaxed max-w-2xl">
+                {spotlightDeal.shortDescription ||
+                  `${spotlightDeal.title}, dijital platformlarda haftanın en dikkat çeken fırsatları arasında öne çıkıyor.`}
               </p>
 
-              <div className="flex flex-wrap items-center gap-4 pt-2">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-sm text-gray-400 line-through font-medium">
-                    ${featuredDeal.normalPrice.toFixed(2)}
-                  </span>
-                  <span className={`text-3xl font-black ${featuredDeal.salePrice === 0 ? 'text-emerald-400' : 'text-white'}`}>
-                    {featuredDeal.salePrice === 0 ? 'ÜCRETSİZ' : `$${featuredDeal.salePrice.toFixed(2)}`}
-                  </span>
-                </div>
+              {/* Spotlight Image */}
+              <div className="relative aspect-[21/9] w-full overflow-hidden rounded-[2px] border border-line bg-paper-deep my-4">
+                <img
+                  src={spotlightDeal.headerImage}
+                  alt={spotlightDeal.title}
+                  className="w-full h-full object-cover saturate-[0.9] contrast-[1.04]"
+                />
+              </div>
+            </div>
 
-                {(featuredDeal.steamRatingPercent || 0) > 0 && (
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-steam-accent/40 border border-steam-accent text-steam-blue text-xs font-bold">
-                    <ThumbsUp className="w-4 h-4" />
-                    %{featuredDeal.steamRatingPercent} {featuredDeal.steamRatingText}
-                  </div>
+            {/* Bottom Pricing & CTA */}
+            <div className="pt-4 border-t border-line flex flex-wrap items-center justify-between gap-4 mt-2">
+              <div className="flex items-baseline gap-3">
+                {spotlightDeal.normalPrice > 0 && (
+                  <del className="text-sm text-muted font-mono line-through font-medium">
+                    ${spotlightDeal.normalPrice.toFixed(2)}
+                  </del>
                 )}
+                <b className="text-3xl font-black text-ink tracking-tight font-sans">
+                  {spotlightDeal.salePrice === 0 ? 'ÜCRETSİZ' : `$${spotlightDeal.salePrice.toFixed(2)}`}
+                </b>
               </div>
 
-              <div className="pt-2 flex items-center gap-3">
+              <div className="flex items-center gap-3">
                 <Link
-                  href={`/deal/${featuredDeal.slug}`}
-                  className="px-6 py-3 rounded-xl bg-steam-blue hover:bg-blue-400 text-steam-darker font-black text-sm transition-all flex items-center gap-2 shadow-lg glow-blue"
+                  href={`/deal/${spotlightDeal.slug}`}
+                  className="px-5 py-2.5 rounded-[var(--radius)] bg-ink hover:bg-lime text-paper hover:text-ink font-sans font-extrabold text-xs uppercase tracking-wider transition-all duration-200 border border-ink flex items-center gap-2 shadow-sm"
                 >
-                  Detaylı İncele ve Al
+                  Raporu Oku & Al
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             </div>
-
-            <div className="lg:col-span-5 w-full">
-              <Link
-                href={`/deal/${featuredDeal.slug}`}
-                className="block w-full overflow-hidden rounded-xl border border-steam-accent bg-steam-darker group shadow-xl"
-              >
-                <img
-                  src={featuredDeal.headerImage}
-                  alt={featuredDeal.title}
-                  className="w-full h-auto max-h-[260px] object-cover group-hover:scale-105 transition-transform duration-500 block"
-                />
-              </Link>
-            </div>
           </div>
+
+          {/* Dispatch Board (Canlı Hat Panosu - Col 4) */}
+          <aside className="lg:col-span-4 rounded-[var(--radius)] border border-ink bg-paper-deep p-6 flex flex-col justify-between">
+            <div>
+              <header className="flex items-center justify-between pb-4 border-b border-line mb-4">
+                <span className="font-mono text-[11px] uppercase tracking-mono text-ink font-bold flex items-center gap-2">
+                  <Radio className="w-3.5 h-3.5 text-orange animate-pulse" />
+                  CANLI HAT (DISPATCH)
+                </span>
+                <span className="font-mono text-[10px] text-muted uppercase">SON 24 SAAT</span>
+              </header>
+
+              <div className="space-y-4">
+                {boardDeals.map((item, index) => (
+                  <Link
+                    key={item.id}
+                    href={`/deal/${item.slug}`}
+                    className="group block p-3 rounded-[var(--radius)] bg-paper border border-line hover:border-ink hover:shadow-sm transition-all"
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className="font-mono font-bold text-xs text-muted group-hover:text-ink">
+                        0{index + 1}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <small className="font-mono text-[9px] uppercase tracking-mono text-muted block mb-0.5">
+                          {item.storeName || 'STEAM'} · {item.genres?.[0] || 'FIRSAT'}
+                        </small>
+                        <h4 className="font-sans font-extrabold text-xs text-ink group-hover:underline line-clamp-1 leading-snug">
+                          {item.title}
+                        </h4>
+                      </div>
+                      <b className="font-mono text-xs font-bold text-ink shrink-0">
+                        {item.salePrice === 0
+                          ? 'ÜCRETSİZ'
+                          : `−%${Math.round(item.savingsPercentage)}`}
+                      </b>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-line mt-6 flex items-center justify-between">
+              <span className="font-mono text-[10px] text-muted uppercase">
+                {total} AKTİF İNDİRİM
+              </span>
+              <button
+                onClick={handleSyncNow}
+                disabled={syncing}
+                className="font-mono text-[10px] uppercase tracking-mono text-ink font-bold hover:underline flex items-center gap-1.5"
+              >
+                <RefreshCw className={`w-3 h-3 ${syncing ? 'animate-spin' : ''}`} />
+                {syncing ? 'TARANIYOR' : 'YENİLE'}
+              </button>
+            </div>
+          </aside>
         </section>
       )}
 
-      {/* Filter & Search Bar */}
-      <section className="space-y-4">
-        {/* Store Selector Tabs */}
-        <div className="flex flex-wrap items-center gap-2 pb-1 border-b border-steam-accent/30">
-          <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mr-1">Mağaza:</span>
-
-          <button
-            onClick={() => handleFilterChange(() => setSelectedStore('all'))}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-              selectedStore === 'all'
-                ? 'bg-steam-blue text-steam-darker font-black shadow-md'
-                : 'bg-steam-card border border-steam-accent/50 text-gray-300 hover:text-white'
-            }`}
-          >
-            <Gamepad2 className="w-3.5 h-3.5" />
-            Tüm Mağazalar
-          </button>
-
-          <button
-            onClick={() => handleFilterChange(() => setSelectedStore('free'))}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-              selectedStore === 'free'
-                ? 'bg-emerald-500 text-steam-darker font-black shadow-md'
-                : 'bg-steam-card border border-emerald-500/40 text-emerald-400 hover:bg-emerald-950/40'
-            }`}
-          >
-            <Gift className="w-3.5 h-3.5" />
-            🎁 Ücretsiz Oyunlar
-          </button>
-
-          <button
-            onClick={() => handleFilterChange(() => setSelectedStore('steam'))}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-              selectedStore === 'steam'
-                ? 'bg-sky-500 text-steam-darker font-black shadow-md'
-                : 'bg-steam-card border border-sky-500/40 text-sky-400 hover:bg-sky-950/40'
-            }`}
-          >
-            Steam
-          </button>
-
-          <button
-            onClick={() => handleFilterChange(() => setSelectedStore('epic'))}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-              selectedStore === 'epic'
-                ? 'bg-zinc-200 text-zinc-950 font-black shadow-md'
-                : 'bg-steam-card border border-zinc-500/40 text-zinc-300 hover:bg-zinc-900/60'
-            }`}
-          >
-            ⚡ Epic Games
-          </button>
-
-          <button
-            onClick={() => handleFilterChange(() => setSelectedStore('gog'))}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-              selectedStore === 'gog'
-                ? 'bg-purple-500 text-white font-black shadow-md'
-                : 'bg-steam-card border border-purple-500/40 text-purple-300 hover:bg-purple-950/40'
-            }`}
-          >
-            🟣 GOG
-          </button>
-
-          <button
-            onClick={() => handleFilterChange(() => setSelectedStore('humble'))}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-              selectedStore === 'humble'
-                ? 'bg-rose-500 text-white font-black shadow-md'
-                : 'bg-steam-card border border-rose-500/40 text-rose-300 hover:bg-rose-950/40'
-            }`}
-          >
-            🔴 Humble Store
-          </button>
-        </div>
-
-        {/* Quick Filter Tabs & Refresh */}
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+      {/* Filter Row & Controls (Filtre Çipleri) */}
+      <section id="filtreler" className="space-y-6 pt-4">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 pb-4 border-b border-ink/20">
+          {/* Store Filter Chips */}
           <div className="flex flex-wrap items-center gap-2">
             <button
-              onClick={() => handleFilterChange(() => setActiveTab('all'))}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                activeTab === 'all'
-                  ? 'bg-steam-accent text-steam-blue font-black shadow-sm'
-                  : 'bg-steam-card border border-steam-accent/50 text-gray-300 hover:text-white hover:bg-steam-accent/40'
-              }`}
+              onClick={() => handleFilterChange(() => setSelectedStore('all'))}
+              className={`filter-chip ${selectedStore === 'all' ? 'is-active' : ''}`}
             >
-              Tüm Fırsatlar
+              TÜMÜ <span>{total}</span>
             </button>
 
             <button
-              onClick={() => handleFilterChange(() => setActiveTab('high_discount'))}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                activeTab === 'high_discount'
-                  ? 'bg-steam-accent text-steam-blue font-black shadow-sm'
-                  : 'bg-steam-card border border-steam-accent/50 text-gray-300 hover:text-white hover:bg-steam-accent/40'
-              }`}
+              onClick={() => handleFilterChange(() => setSelectedStore('free'))}
+              className={`filter-chip ${selectedStore === 'free' ? 'is-active' : ''}`}
             >
-              <Sparkles className="w-3.5 h-3.5 text-yellow-400" />
-              %70+ Dev İndirimler
+              <Gift className="w-3.5 h-3.5 text-orange" />
+              ÜCRETSİZ OYUNLAR
             </button>
 
             <button
-              onClick={() => handleFilterChange(() => setActiveTab('under_5'))}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                activeTab === 'under_5'
-                  ? 'bg-steam-accent text-steam-blue font-black shadow-sm'
-                  : 'bg-steam-card border border-steam-accent/50 text-gray-300 hover:text-white hover:bg-steam-accent/40'
-              }`}
+              onClick={() => handleFilterChange(() => setSelectedStore('steam'))}
+              className={`filter-chip ${selectedStore === 'steam' ? 'is-active' : ''}`}
             >
-              <Tag className="w-3.5 h-3.5 text-green-400" />
-              $5 Altı Oyunlar
+              STEAM
             </button>
 
             <button
-              onClick={() => handleFilterChange(() => setActiveTab('top_rated'))}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                activeTab === 'top_rated'
-                  ? 'bg-steam-accent text-steam-blue font-black shadow-sm'
-                  : 'bg-steam-card border border-steam-accent/50 text-gray-300 hover:text-white hover:bg-steam-accent/40'
-              }`}
+              onClick={() => handleFilterChange(() => setSelectedStore('epic'))}
+              className={`filter-chip ${selectedStore === 'epic' ? 'is-active' : ''}`}
             >
-              <ThumbsUp className="w-3.5 h-3.5 text-steam-blue" />
-              %85+ Çok Olumlu
+              EPIC GAMES
+            </button>
+
+            <button
+              onClick={() => handleFilterChange(() => setSelectedStore('gog'))}
+              className={`filter-chip ${selectedStore === 'gog' ? 'is-active' : ''}`}
+            >
+              GOG
+            </button>
+
+            <button
+              onClick={() => handleFilterChange(() => setSelectedStore('humble'))}
+              className={`filter-chip ${selectedStore === 'humble' ? 'is-active' : ''}`}
+            >
+              HUMBLE STORE
             </button>
           </div>
 
-          {/* Sync / Refresh Button */}
+          {/* Sync Trigger */}
           <button
             onClick={handleSyncNow}
             disabled={syncing}
-            className="px-4 py-2 rounded-xl bg-steam-card hover:bg-steam-accent/60 border border-steam-accent/70 text-steam-blue text-xs font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            className="px-3.5 py-2 rounded-[var(--radius)] border border-line hover:border-ink bg-paper text-ink font-mono text-[10px] uppercase tracking-mono font-medium flex items-center justify-center gap-2 transition-all"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
-            {syncing ? 'Tüm Mağazalar Taranıyor...' : 'Tüm Mağazaları Güncelle'}
+            {syncing ? 'TARANIYOR...' : 'CANLI VERİ ÇEK'}
           </button>
         </div>
 
-        {/* Search & Sort Controls */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 p-4 rounded-xl bg-steam-card/70 border border-steam-accent/40">
-          {/* Search Input */}
+        {/* Search & Sort Row */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 p-4 rounded-[var(--radius)] border border-line bg-white/40">
+          {/* Search Box */}
           <div className="md:col-span-6 relative">
-            <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Oyun adı veya açıklama ara (Steam, Epic, GOG, Humble)..."
+              placeholder="Oyun veya yapımcı ara..."
               value={search}
               onChange={(e) => handleFilterChange(() => setSearch(e.target.value))}
-              className="w-full pl-10 pr-4 py-2 rounded-lg bg-steam-darker/80 border border-steam-accent/60 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-steam-blue transition-colors"
+              className="w-full pl-10 pr-4 py-2 rounded-[var(--radius)] bg-paper border border-line text-ink placeholder-muted text-xs font-mono focus:outline-none focus:border-ink transition-colors"
             />
           </div>
 
@@ -337,15 +305,14 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
             <select
               value={category}
               onChange={(e) => handleFilterChange(() => setCategory(e.target.value))}
-              aria-label="Oyun Türü Seçin"
-              className="w-full px-3 py-2 rounded-lg bg-steam-darker/80 border border-steam-accent/60 text-white text-sm focus:outline-none focus:border-steam-blue transition-colors"
+              aria-label="Kategori Seç"
+              className="w-full px-3 py-2 rounded-[var(--radius)] bg-paper border border-line text-ink text-xs font-mono uppercase focus:outline-none focus:border-ink transition-colors"
             >
-              <option value="all">Tüm Oyun Türleri</option>
+              <option value="all">Tüm Kategoriler</option>
               <option value="action">Aksiyon</option>
               <option value="rpg">RPG / Rol Yapma</option>
               <option value="strategy">Strateji</option>
               <option value="adventure">Macera</option>
-              <option value="simulation">Simülasyon</option>
               <option value="indie">Bağımsız (Indie)</option>
               <option value="multiplayer">Çok Oyunculu</option>
             </select>
@@ -356,27 +323,26 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
             <select
               value={sortBy}
               onChange={(e) => handleFilterChange(() => setSortBy(e.target.value as any))}
-              aria-label="Sıralama Seçin"
-              className="w-full px-3 py-2 rounded-lg bg-steam-darker/80 border border-steam-accent/60 text-white text-sm focus:outline-none focus:border-steam-blue transition-colors"
+              aria-label="Sıralama Seç"
+              className="w-full px-3 py-2 rounded-[var(--radius)] bg-paper border border-line text-ink text-xs font-mono uppercase focus:outline-none focus:border-ink transition-colors"
             >
-              <option value="savings">En Yüksek İndirim Oranı</option>
-              <option value="rating">En Yüksek Topluluk Puanı</option>
-              <option value="price_asc">Fiyat: En Düşük</option>
-              <option value="price_desc">Fiyat: En Yüksek</option>
-              <option value="newest">En Yeni Eklenenler</option>
+              <option value="savings">En Yüksek İndirim</option>
+              <option value="rating">Topluluk Puanı</option>
+              <option value="price_asc">Fiyat: Artan</option>
+              <option value="price_desc">Fiyat: Azalan</option>
+              <option value="newest">En Yeni İndirimler</option>
             </select>
           </div>
         </div>
       </section>
 
-      {/* Deals Grid */}
+      {/* Editorial Grid (Dispatch Cards) */}
       <section className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-extrabold text-white flex items-center gap-2">
-            <TrendingDown className="w-5 h-5 text-steam-green" />
-            Aktif Fırsatlar & İndirimler
-            <span className="text-xs px-2 py-0.5 rounded-full bg-steam-card border border-steam-accent text-gray-400 font-normal">
-              {total} Oyun
+        <div className="flex items-center justify-between pb-2 border-b border-line">
+          <h2 className="text-xl md:text-2xl font-extrabold text-ink tracking-tight flex items-center gap-2">
+            <span>EDİTORYAL SEÇKİ & FIRSATLAR</span>
+            <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-[2px] bg-paper-deep border border-line text-muted">
+              {total} KAYIT
             </span>
           </h2>
         </div>
@@ -386,7 +352,7 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
             {Array.from({ length: 8 }).map((_, i) => (
               <div
                 key={i}
-                className="rounded-xl bg-steam-card/40 border border-steam-accent/30 aspect-[4/5] animate-pulse"
+                className="rounded-[var(--radius)] border border-line bg-paper-deep aspect-[4/5] animate-pulse"
               />
             ))}
           </div>
@@ -397,19 +363,20 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
             ))}
           </div>
         ) : (
-          <div className="text-center py-16 px-4 rounded-2xl bg-steam-card/30 border border-steam-accent/40 space-y-4">
-            <Gamepad2 className="w-12 h-12 text-steam-blue mx-auto opacity-50" />
-            <h3 className="text-lg font-bold text-white">Henüz Listelenecek Fırsat Bulunamadı</h3>
-            <p className="text-sm text-gray-400 max-w-md mx-auto">
-              Seçtiğiniz filtreye uygun indirim bulunamadı veya veritabanını güncellemeniz gerekiyor. Tüm mağazalardaki güncel fırsatları çekmek için aşağıdaki butona basın.
+          <div className="text-center py-20 px-4 rounded-[var(--radius)] border border-ink/30 bg-paper-deep space-y-4">
+            <h3 className="text-lg font-bold text-ink font-mono uppercase">
+              SEÇİLEN KRİTERLERE UYGUN FIRSAT BULUNAMADI
+            </h3>
+            <p className="text-xs text-muted max-w-md mx-auto font-sans">
+              Filtreleri sıfırlayabilir veya canlı tarama motorunu tetikleyerek yeni fırsatları çekebilirsiniz.
             </p>
             <button
               onClick={handleSyncNow}
               disabled={syncing}
-              className="px-6 py-2.5 rounded-xl bg-steam-blue text-steam-darker font-bold text-sm hover:bg-blue-400 transition-all inline-flex items-center gap-2 shadow-lg glow-blue"
+              className="px-5 py-2.5 rounded-[var(--radius)] bg-ink hover:bg-lime text-paper hover:text-ink font-mono text-xs uppercase tracking-mono font-bold transition-all border border-ink inline-flex items-center gap-2"
             >
-              <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
-              {syncing ? 'Mağazalar Taranıyor...' : 'Canlı Fırsatları Çek'}
+              <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
+              {syncing ? 'TARANIYOR...' : 'VERİLERİ YENİLE'}
             </button>
           </div>
         )}
