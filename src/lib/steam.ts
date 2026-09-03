@@ -1,7 +1,7 @@
 import axios from 'axios';
 import slugify from 'slugify';
 import { Deal, CheapSharkDealItem } from './types';
-import { saveDeal, getDealById } from './db';
+import { saveDeal, getDealById, getAllDeals, saveDealsBatch } from './db';
 
 // Clean HTML tags from Steam description
 function cleanHtml(html: string): string {
@@ -12,7 +12,67 @@ function cleanHtml(html: string): string {
     .replace(/&quot;/g, '"')
     .replace(/&amp;/g, '&')
     .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
     .trim();
+}
+
+// Translate English text to Turkish using MyMemory free API
+async function translateToTurkish(text: string): Promise<string> {
+  if (!text) return '';
+  // Check if text is already Turkish (contains common Turkish characters or patterns)
+  const isLikelyTurkish = /[ığüşöçİĞÜŞÖÇ]/.test(text) && /\b(bir|ve|ile|oyun|için|bu|olarak)\b/i.test(text);
+  if (isLikelyTurkish) return text;
+
+  try {
+    const cleanText = text.replace(/[\n\r]+/g, ' ').slice(0, 450);
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(cleanText)}&langpair=en|tr`;
+    const res = await axios.get(url, {
+      timeout: 5000,
+      headers: {
+        'User-Agent': 'SteamDealsBot/1.0 (contact@steamdealsbot.com)',
+      },
+    });
+
+    const match = res.data?.responseData?.translatedText;
+    if (match && !match.includes('MYMEMORY WARNING') && match.length > 10) {
+      return match;
+    }
+  } catch {
+    // ignore
+  }
+  return text;
+}
+
+// Generate rich Turkish game overview if translation fails or for enrichment
+function buildTurkishGameDescription(
+  title: string,
+  shortDesc: string,
+  genres: string[],
+  steamRatingPercent: number,
+  steamRatingText: string,
+  savings: number,
+  salePrice: number,
+  publisher?: string
+): string {
+  const genreStr = genres && genres.length > 0 ? genres.slice(0, 3).join(', ') : 'video oyunu';
+  const ratingTextTr = steamRatingPercent >= 80 ? 'Çok Olumlu' : steamRatingPercent >= 60 ? 'Olumlu' : 'Karışık';
+
+  let intro = `${title}, Steam mağazasında ${genreStr} kategorisinde yer alan popüler bir yapımdır. `;
+  
+  if (shortDesc && shortDesc.length > 15) {
+    intro += `\n\n${shortDesc}\n\n`;
+  }
+
+  intro += `🎮 Oyuncu Değerlendirmesi: Steam topluluğu tarafından %${steamRatingPercent} oranında "${ratingTextTr}" olarak puanlanmıştır. `;
+  if (publisher) {
+    intro += `Yayıncılığı ${publisher} tarafından üstlenilen oyun, `;
+  } else {
+    intro += `Oyun, `;
+  }
+  intro += `şu anda %${Math.round(savings)} indirim fırsatıyla $${salePrice.toFixed(2)} fiyat etiketiyle oyunculara sunulmaktadır.`;
+
+  return intro;
 }
 
 // Generate helpful Turkish review summary and pros/cons based on tags & rating
@@ -42,18 +102,18 @@ function generateGameHighlights(title: string, genres: string[], steamRatingPerc
   }
 
   // Genre-specific insights
-  if (genres.some(g => /rpg|rol yapma/i.test(g))) {
+  if (genres.some((g) => /rpg|rol yapma/i.test(g))) {
     pros.push('Derin hikaye örgüsü ve karakter gelişimi');
     cons.push('Öğrenme eğrisi ve oynanış süresi uzun olabilir');
   }
-  if (genres.some(g => /action|aksiyon/i.test(g))) {
+  if (genres.some((g) => /action|aksiyon/i.test(g))) {
     pros.push('Hızlı ve dinamik oynanış mekanikleri');
   }
-  if (genres.some(g => /strategy|strateji/i.test(g))) {
+  if (genres.some((g) => /strategy|strateji/i.test(g))) {
     pros.push('Taktiksel derinlik ve yüksek tekrar oynanabilirlik');
     cons.push('Detaylı yönetim ve sabır gerektirebilir');
   }
-  if (genres.some(g => /multiplayer|çok oyunculu/i.test(g))) {
+  if (genres.some((g) => /multiplayer|çok oyunculu/i.test(g))) {
     pros.push('Arkadaşlarla veya çevrim içi oyuncularla eşsiz eğlence');
     cons.push('Aktif oyuncu sayısı dönemsel olarak değişebilir');
   }
@@ -81,7 +141,6 @@ async function fetchSteamAppDetails(steamAppId: string) {
       return data.data;
     }
   } catch (error: any) {
-    // If Turkish fails or times out, try standard fallback
     try {
       const fallbackUrl = `https://store.steampowered.com/api/appdetails?appids=${steamAppId}&cc=us`;
       const resFallback = await axios.get(fallbackUrl, { timeout: 6000 });
@@ -133,7 +192,7 @@ export async function syncSteamDeals(limit = 40): Promise<{ added: number; updat
       // Check existing deal
       const existingDeal = getDealById(item.dealID);
 
-      // Fetch Steam rich details if new deal
+      // Fetch Steam rich details
       let headerImage = `https://cdn.akamai.steamstatic.com/steam/apps/${item.steamAppID}/header.jpg`;
       let capsuleImage = item.thumb || `https://cdn.akamai.steamstatic.com/steam/apps/${item.steamAppID}/capsule_616x353.jpg`;
       let screenshots: string[] = [];
@@ -141,55 +200,43 @@ export async function syncSteamDeals(limit = 40): Promise<{ added: number; updat
       let releaseDate = item.releaseDate ? new Date(item.releaseDate * 1000).toLocaleDateString('tr-TR') : undefined;
       let publisher = '';
       let developer = '';
-      let shortDescription = '';
-      let detailedDescription = '';
+      let rawShortDesc = '';
+      let rawDetailedDesc = '';
       let minimumRequirements = '';
       let recommendedRequirements = '';
 
-      if (!existingDeal) {
-        const steamDetails = await fetchSteamAppDetails(item.steamAppID);
-        if (steamDetails) {
-          if (steamDetails.header_image) headerImage = steamDetails.header_image;
-          if (steamDetails.capsule_image) capsuleImage = steamDetails.capsule_image;
+      const steamDetails = await fetchSteamAppDetails(item.steamAppID);
+      if (steamDetails) {
+        if (steamDetails.header_image) headerImage = steamDetails.header_image;
+        if (steamDetails.capsule_image) capsuleImage = steamDetails.capsule_image;
 
-          if (Array.isArray(steamDetails.screenshots)) {
-            screenshots = steamDetails.screenshots.map((s: any) => s.path_full || s.path_thumbnail).filter(Boolean);
-          }
-
-          if (Array.isArray(steamDetails.genres)) {
-            genres = steamDetails.genres.map((g: any) => g.description).filter(Boolean);
-          }
-
-          if (steamDetails.publishers && steamDetails.publishers.length > 0) {
-            publisher = steamDetails.publishers.join(', ');
-          }
-
-          if (steamDetails.developers && steamDetails.developers.length > 0) {
-            developer = steamDetails.developers.join(', ');
-          }
-
-          shortDescription = cleanHtml(steamDetails.short_description || '');
-          detailedDescription = cleanHtml(steamDetails.detailed_description || steamDetails.about_the_game || '');
-
-          if (steamDetails.pc_requirements) {
-            minimumRequirements = cleanHtml(steamDetails.pc_requirements.minimum || '');
-            recommendedRequirements = cleanHtml(steamDetails.pc_requirements.recommended || '');
-          }
-
-          if (steamDetails.release_date?.date) {
-            releaseDate = steamDetails.release_date.date;
-          }
+        if (Array.isArray(steamDetails.screenshots)) {
+          screenshots = steamDetails.screenshots.map((s: any) => s.path_full || s.path_thumbnail).filter(Boolean);
         }
-      } else {
-        screenshots = existingDeal.screenshots;
-        genres = existingDeal.genres;
-        publisher = existingDeal.publisher || '';
-        developer = existingDeal.developer || '';
-        shortDescription = existingDeal.shortDescription || '';
-        detailedDescription = existingDeal.detailedDescription || '';
-        minimumRequirements = existingDeal.minimumRequirements || '';
-        recommendedRequirements = existingDeal.recommendedRequirements || '';
-        releaseDate = existingDeal.releaseDate || releaseDate;
+
+        if (Array.isArray(steamDetails.genres)) {
+          genres = steamDetails.genres.map((g: any) => g.description).filter(Boolean);
+        }
+
+        if (steamDetails.publishers && steamDetails.publishers.length > 0) {
+          publisher = steamDetails.publishers.join(', ');
+        }
+
+        if (steamDetails.developers && steamDetails.developers.length > 0) {
+          developer = steamDetails.developers.join(', ');
+        }
+
+        rawShortDesc = cleanHtml(steamDetails.short_description || '');
+        rawDetailedDesc = cleanHtml(steamDetails.detailed_description || steamDetails.about_the_game || '');
+
+        if (steamDetails.pc_requirements) {
+          minimumRequirements = cleanHtml(steamDetails.pc_requirements.minimum || '');
+          recommendedRequirements = cleanHtml(steamDetails.pc_requirements.recommended || '');
+        }
+
+        if (steamDetails.release_date?.date) {
+          releaseDate = steamDetails.release_date.date;
+        }
       }
 
       if (screenshots.length === 0) {
@@ -198,6 +245,19 @@ export async function syncSteamDeals(limit = 40): Promise<{ added: number; updat
           `https://cdn.akamai.steamstatic.com/steam/apps/${item.steamAppID}/ss_2.jpg`,
         ];
       }
+
+      // Translate short description to Turkish if needed
+      let turkishShortDesc = await translateToTurkish(rawShortDesc);
+      const fullTurkishDescription = buildTurkishGameDescription(
+        cleanTitle,
+        turkishShortDesc,
+        genres,
+        steamRatingPercent,
+        item.steamRatingText || 'Olumlu',
+        savingsPercentage,
+        salePrice,
+        publisher
+      );
 
       const { highlights, pros, cons } = generateGameHighlights(cleanTitle, genres, steamRatingPercent, savingsPercentage);
 
@@ -222,8 +282,8 @@ export async function syncSteamDeals(limit = 40): Promise<{ added: number; updat
         releaseDate,
         publisher,
         developer,
-        shortDescription: shortDescription || `${cleanTitle}, Steam mağazasında %${savingsPercentage} indirim ile satışta!`,
-        detailedDescription,
+        shortDescription: fullTurkishDescription,
+        detailedDescription: rawDetailedDesc,
         summaryHighlights: highlights,
         pros,
         cons,
@@ -247,10 +307,8 @@ export async function syncSteamDeals(limit = 40): Promise<{ added: number; updat
         addedCount++;
       }
 
-      // Small delay between Steam detail requests to be polite
-      if (!existingDeal) {
-        await new Promise((resolve) => setTimeout(resolve, 300));
-      }
+      // Small delay between requests
+      await new Promise((resolve) => setTimeout(resolve, 300));
     }
 
     return { added: addedCount, updated: updatedCount, total: deals.length };
