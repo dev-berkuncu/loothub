@@ -11,12 +11,10 @@ import {
   Tag,
   ThumbsUp,
   RefreshCw,
-  SlidersHorizontal,
   ArrowRight,
   Gamepad2,
 } from 'lucide-react';
 import DealCard from '@/components/DealCard';
-import AdBanner from '@/components/AdBanner';
 import { Deal } from '@/lib/types';
 
 export default function HomePage() {
@@ -154,9 +152,6 @@ export default function HomePage() {
           </div>
         </section>
       )}
-
-      {/* Top Monetization Ad Slot */}
-      <AdBanner slot="homepage-top" className="my-6" />
 
       {/* Filter & Search Bar */}
       <section className="space-y-4">
@@ -297,16 +292,8 @@ export default function HomePage() {
           </div>
         ) : deals.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {deals.map((deal, idx) => (
-              <div key={deal.id}>
-                <DealCard deal={deal} />
-                {/* Insert In-Grid Ad after 8th item for monetization */}
-                {idx === 7 && (
-                  <div className="col-span-full my-6">
-                    <AdBanner slot="in-grid-ad" label="Önerilen Sponsor / Reklam" />
-                  </div>
-                )}
-              </div>
+            {deals.map((deal) => (
+              <DealCard key={deal.id} deal={deal} />
             ))}
           </div>
         ) : (
@@ -327,9 +314,6 @@ export default function HomePage() {
           </div>
         )}
       </section>
-
-      {/* Bottom Ad Banner */}
-      <AdBanner slot="homepage-bottom" className="my-8" />
     </div>
   );
 }
