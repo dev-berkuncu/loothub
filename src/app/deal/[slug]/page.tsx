@@ -14,16 +14,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const deal = getDealBySlug(params.slug);
   if (!deal) {
     return {
-      title: 'Record Not Found | Sociaera',
+      title: 'Kayıt Bulunamadı | Sociaera',
     };
   }
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://sociaera.online';
   const isFree = deal.isFree || deal.salePrice === 0;
   const storeTitle = deal.storeName || 'Steam';
-  const priceText = isFree ? 'FREE' : `$${deal.salePrice.toFixed(2)}`;
-  const title = `${deal.title} — ${storeTitle} Archived Record (${priceText})`;
-  const description = `${deal.title} is currently documented under verified ${storeTitle} promotion status at ${priceText}. Architectural specs and pricing history.`;
+  const priceText = isFree ? 'ÜCRETSİZ' : `$${deal.salePrice.toFixed(2)}`;
+  const title = `${deal.title} — ${storeTitle} Arşiv Kaydı & Fiyat Raporu (${priceText})`;
+  const description = `${deal.title}, ${storeTitle} mağazasında doğrulanmış %${Math.round(deal.savingsPercentage)} indirimle ${priceText} seviyesindedir. Detaylı teknik özellikler ve fiyat geçmişi.`;
 
   return {
     title,
@@ -79,7 +79,7 @@ export default function DealDetailPage({ params }: PageProps) {
           href="/"
           className="ghost-link text-caption uppercase"
         >
-          &larr; BACK TO SOCIAERA INDEX
+          &larr; SOCIAERA ARŞİVİNE GERİ DÖN
         </Link>
       </div>
 
@@ -91,8 +91,13 @@ export default function DealDetailPage({ params }: PageProps) {
             <img
               src={deal.headerImage}
               alt={deal.title}
-              className="w-full h-full object-cover contrast-[1.06]"
+              className="w-full h-full object-cover contrast-[1.05]"
             />
+            {isFree && (
+              <div className="absolute top-4 right-4 px-3 py-1 bg-paper border border-ink text-ink font-mono text-[10px] uppercase font-bold tracking-wider">
+                100% ÜCRETSİZ HEDİYE
+              </div>
+            )}
           </div>
 
           {/* Screenshots Hairline Grid */}
@@ -105,8 +110,8 @@ export default function DealDetailPage({ params }: PageProps) {
                 >
                   <img
                     src={img}
-                    alt={`${deal.title} visual capture ${i + 1}`}
-                    className="w-full h-full object-cover hover:contrast-[1.12] transition-all block"
+                    alt={`${deal.title} görsel ${i + 1}`}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300 block"
                     loading="lazy"
                   />
                 </div>
@@ -118,8 +123,9 @@ export default function DealDetailPage({ params }: PageProps) {
         {/* Details & Action Tile (Col 5) */}
         <div className="lg:col-span-5 grid-paper border border-ash rounded-cards p-8 space-y-6">
           <div className="space-y-3 pb-6 border-b border-ash">
-            <span className="section-label block">
-              RECORD // {storeLabel} // {deal.genres?.[0]?.toUpperCase() || 'TITLE'}
+            <span className="section-label flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-ink inline-block" />
+              ARŞİV // {storeLabel} // {deal.genres?.[0]?.toUpperCase() || 'YAPIM'}
             </span>
             <h1 className="text-subheading md:text-heading-sm font-normal text-ink leading-tight">
               {deal.title}
@@ -127,12 +133,12 @@ export default function DealDetailPage({ params }: PageProps) {
             <div className="flex flex-wrap items-center gap-6 pt-2">
               {deal.publisher && (
                 <span className="section-label text-ink/70">
-                  PUB: {deal.publisher}
+                  YAYINCI: {deal.publisher}
                 </span>
               )}
               {deal.releaseDate && (
                 <span className="section-label text-ink/70">
-                  REL: {deal.releaseDate}
+                  ÇIKIŞ: {deal.releaseDate}
                 </span>
               )}
             </div>
@@ -142,11 +148,11 @@ export default function DealDetailPage({ params }: PageProps) {
           <div className="p-6 border border-ash bg-parchment rounded-cards flex items-center justify-between">
             <div>
               <span className="section-label block mb-1">
-                {isFree ? 'STATUS' : 'VERIFIED PRICE'}
+                {isFree ? 'KAMPANYA DURUMU' : 'DOĞRULANMIŞ SATIŞ FİYATI'}
               </span>
               <div className="flex items-baseline gap-3">
-                <span className="text-subheading font-normal text-ink">
-                  {isFree ? 'FREE' : `$${deal.salePrice.toFixed(2)}`}
+                <span className="text-subheading font-bold text-ink">
+                  {isFree ? 'ÜCRETSİZ' : `$${deal.salePrice.toFixed(2)}`}
                 </span>
                 {deal.normalPrice > 0 && (
                   <span className="text-body-sm text-ash line-through">
@@ -157,12 +163,12 @@ export default function DealDetailPage({ params }: PageProps) {
             </div>
 
             <div className="text-right">
-              <span className="section-label font-medium block">
-                {isFree ? '100% DISCOUNT' : `−${Math.round(deal.savingsPercentage)}% OFF`}
+              <span className="section-label font-bold block text-ink">
+                {isFree ? '100% TASARRUF' : `−%${Math.round(deal.savingsPercentage)} İNDİRİM`}
               </span>
               {deal.isHistoricalLow && (
-                <span className="section-label text-ink block mt-1">
-                  HISTORIC LOW
+                <span className="section-label text-ink font-bold block mt-1">
+                  TARİHİ DİP FİYAT
                 </span>
               )}
             </div>
@@ -170,13 +176,13 @@ export default function DealDetailPage({ params }: PageProps) {
 
           {/* Verification Rating */}
           <div className="p-4 border border-ash bg-paper rounded-cards">
-            <span className="section-label block text-ink mb-1">
-              STOREFRONT VERIFICATION
+            <span className="section-label block text-ink mb-1 font-medium">
+              MAĞAZA VE TOPLULUK DEĞERLENDİRMESİ
             </span>
             <p className="text-body-sm text-ink/70">
               {(deal.steamRatingPercent || 0) > 0
-                ? `${deal.steamRatingPercent}% Positive Rating (${deal.steamRatingCount?.toLocaleString() || '1,000+'} reviews)`
-                : `Active digital deal on ${storeLabel}.`}
+                ? `%${deal.steamRatingPercent} Topluluk Onayı (${deal.steamRatingCount?.toLocaleString() || '1.000+'} oyuncu incelemesi)`
+                : `${storeLabel} mağazasında resmi indirim ve promosyon kaydı.`}
             </p>
           </div>
 
@@ -186,11 +192,11 @@ export default function DealDetailPage({ params }: PageProps) {
               href={targetUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full py-3.5 px-6 rounded-buttons border border-ink text-ink hover:bg-ink hover:text-parchment text-caption font-normal uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 text-center"
+              className="w-full py-3.5 px-6 rounded-buttons border border-ink text-ink hover:bg-ink hover:text-parchment text-caption font-bold uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 text-center"
             >
               {isFree
-                ? `CLAIM FREE ON ${storeLabel} &rarr;`
-                : `PROCEED TO ${storeLabel} &rarr;`}
+                ? `${storeLabel}'TE ÜCRETSİZ KÜTÜPHANEYE EKLE &rarr;`
+                : `${storeLabel}'TE GÖRÜNTÜLE VE SATIN AL &rarr;`}
             </a>
           </div>
         </div>
@@ -201,22 +207,23 @@ export default function DealDetailPage({ params }: PageProps) {
         {/* Curated Summary */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 p-8 border border-ash bg-paper rounded-cards">
           <div className="md:col-span-4">
-            <span className="section-label block">
-              EDITORIAL EVALUATION
+            <span className="section-label block font-medium">
+              EDİTORYAL DEĞERLENDİRME & ÖZET
             </span>
           </div>
           <div className="md:col-span-8 space-y-4">
             {deal.summaryHighlights && deal.summaryHighlights.length > 0 ? (
               <div className="space-y-2">
                 {deal.summaryHighlights.map((hl, idx) => (
-                  <p key={idx} className="text-body-sm text-ink leading-relaxed">
-                    &bull; {hl}
+                  <p key={idx} className="text-body-sm text-ink leading-relaxed flex items-start gap-2">
+                    <span className="text-ink font-bold">&bull;</span>
+                    <span>{hl}</span>
                   </p>
                 ))}
               </div>
             ) : (
               <p className="text-body-sm text-ink leading-relaxed">
-                {deal.shortDescription || `${deal.title} documented on ${storeLabel}.`}
+                {deal.shortDescription || `${deal.title} hakkında detaylar.`}
               </p>
             )}
           </div>
@@ -226,8 +233,8 @@ export default function DealDetailPage({ params }: PageProps) {
         {deal.shortDescription && (
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 p-8 border border-ash bg-paper rounded-cards">
             <div className="md:col-span-4">
-              <span className="section-label block">
-                ARCHIVAL OVERVIEW
+              <span className="section-label block font-medium">
+                YAPIM HAKKINDA RAPOR
               </span>
             </div>
             <div className="md:col-span-8">
@@ -242,14 +249,14 @@ export default function DealDetailPage({ params }: PageProps) {
         {(deal.minimumRequirements || deal.recommendedRequirements) && (
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 p-8 border border-ash bg-paper rounded-cards">
             <div className="md:col-span-4">
-              <span className="section-label block">
-                TECHNICAL SPECS
+              <span className="section-label block font-medium">
+                SİSTEM GEREKSİNİMLERİ // TEKNİK PARAMETRELER
               </span>
             </div>
             <div className="md:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
               {deal.minimumRequirements && (
                 <div className="space-y-2">
-                  <span className="section-label block text-ink">MINIMUM</span>
+                  <span className="section-label block text-ink">MİNİMUM</span>
                   <div className="text-caption text-ink/70 whitespace-pre-line leading-relaxed font-mono">
                     {deal.minimumRequirements}
                   </div>
@@ -257,7 +264,7 @@ export default function DealDetailPage({ params }: PageProps) {
               )}
               {deal.recommendedRequirements && (
                 <div className="space-y-2">
-                  <span className="section-label block text-ink">RECOMMENDED</span>
+                  <span className="section-label block text-ink">ÖNERİLEN</span>
                   <div className="text-caption text-ink/70 whitespace-pre-line leading-relaxed font-mono">
                     {deal.recommendedRequirements}
                   </div>
@@ -271,8 +278,8 @@ export default function DealDetailPage({ params }: PageProps) {
       {/* Related Works Grid */}
       {filteredRelated.length > 0 && (
         <section className="space-y-6 pt-12 border-t border-ash">
-          <span className="section-label block">
-            ASSOCIATED ARCHIVAL RECORDS
+          <span className="section-label block font-medium">
+            İLİŞKİLİ ARŞİV KAYITLARI
           </span>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {filteredRelated.map((relDeal) => (

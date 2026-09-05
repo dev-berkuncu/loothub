@@ -79,131 +79,231 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
     }
   };
 
+  // Spotlight Deal (Weekly highlight or Free Game)
+  const spotlightDeal =
+    deals.find((d) => d.isFree || d.salePrice === 0) ||
+    deals.find((d) => d.savingsPercentage >= 75) ||
+    deals[0];
+
   return (
-    <div className="space-y-24">
-      {/* Hero Section: Monumental Typography + Signature Iridescent Gradient Sphere */}
-      <section className="relative min-h-[75vh] flex flex-col justify-between pt-12 pb-8 overflow-hidden border-b border-ash">
-        {/* Iridescent Gradient Sphere (The Only Chromatic Element) */}
+    <div className="space-y-20">
+      {/* Hero Section: Monumental Architectural Typography + Signature Iridescent Gradient Sphere */}
+      <section className="relative min-h-[78vh] flex flex-col justify-between pt-12 pb-10 border-b border-ash overflow-hidden">
+        {/* Iridescent Gradient Sphere (The Only Chromatic Element on the Page) */}
         <div
-          className="hero-iridescent-sphere top-[-10%] right-[5%] md:right-[12%]"
+          className="hero-iridescent-sphere top-[-5%] right-[2%] md:right-[10%]"
           aria-hidden="true"
         />
 
-        {/* Concentric Circle Ornaments */}
+        {/* Concentric Circle Ornaments (Hairline Architecture) */}
         <div
-          className="concentric-circle w-[720px] h-[720px] top-[-18%] right-[0%]"
+          className="concentric-circle w-[680px] h-[680px] top-[-12%] right-[2%]"
           aria-hidden="true"
         />
         <div
-          className="concentric-circle w-[940px] h-[940px] top-[-30%] right-[-8%]"
+          className="concentric-circle w-[960px] h-[960px] top-[-25%] right-[-6%]"
           aria-hidden="true"
         />
 
         {/* Top Section Label */}
-        <div className="relative z-10">
-          <span className="section-label block">
-            ARCHITECTURAL INDEX // SOCIAERA.ONLINE
+        <div className="relative z-10 flex items-center justify-between">
+          <span className="section-label flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-600 inline-block animate-pulse" />
+            SOCIAERA DISPATCH // CANLI OYUN & İNDİRİM ARŞİVİ
+          </span>
+          <span className="section-label hidden sm:inline-block">
+            VOL. 2026 // EDİTORYAL
           </span>
         </div>
 
-        {/* Monumental Display Headline (Stacked Mass) */}
-        <div className="relative z-10 my-auto py-12">
-          <h1 className="display-headline select-none">
-            CURATED<br />
-            ARCHITECTURE OF<br />
-            DIGITAL GAMES.
-          </h1>
+        {/* Monumental Display Headline + Spotlight Grid */}
+        <div className="relative z-10 my-auto py-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div className="lg:col-span-8 space-y-6">
+            <h1 className="display-headline select-none">
+              DİJİTAL OYUN<br />
+              DÜNYASININ MİMARİ<br />
+              İNDİRİM ARŞİVİ.
+            </h1>
+            <p className="text-body max-w-xl text-ink/80 leading-relaxed font-normal">
+              Steam, Epic Games, GOG ve Humble Store üzerindeki fiyat dalgalanmalarını, tarihi dip seviyeleri ve haftalık ücretsiz dağıtımları belgeleyen bağımsız dijital keşif yayını.
+            </p>
+          </div>
+
+          {/* Hero Spotlight Card (Visual proof of live gaming data) */}
+          {spotlightDeal && (
+            <div className="lg:col-span-4 grid-paper border border-ink p-6 rounded-cards space-y-4 relative z-10 bg-paper">
+              <div className="flex items-center justify-between pb-2 border-b border-ash">
+                <span className="section-label">
+                  GÜNÜN EDİTORYAL SEÇKİSİ
+                </span>
+                <span className="section-label font-bold text-ink">
+                  {spotlightDeal.salePrice === 0
+                    ? '100% ÜCRETSİZ'
+                    : `−%${Math.round(spotlightDeal.savingsPercentage)}`}
+                </span>
+              </div>
+
+              <Link
+                href={`/deal/${spotlightDeal.slug}`}
+                className="block relative aspect-[16/9] w-full overflow-hidden bg-parchment border border-ash group"
+              >
+                <img
+                  src={spotlightDeal.headerImage}
+                  alt={spotlightDeal.title}
+                  className="w-full h-full object-cover saturate-[0.95] contrast-[1.05] group-hover:scale-105 transition-transform duration-500 block"
+                />
+              </Link>
+
+              <div>
+                <h3 className="font-normal text-body text-ink line-clamp-1 leading-snug">
+                  {spotlightDeal.title}
+                </h3>
+                <span className="section-label text-ink/60 block mt-1">
+                  PLATFORM: {(spotlightDeal.storeName || 'STEAM').toUpperCase()}
+                </span>
+              </div>
+
+              <div className="pt-3 border-t border-ash flex items-center justify-between">
+                <div className="flex items-baseline gap-2">
+                  {spotlightDeal.normalPrice > 0 && (
+                    <span className="text-caption text-ash line-through">
+                      ${spotlightDeal.normalPrice.toFixed(2)}
+                    </span>
+                  )}
+                  <span className="text-body font-bold text-ink">
+                    {spotlightDeal.salePrice === 0 ? 'ÜCRETSİZ' : `$${spotlightDeal.salePrice.toFixed(2)}`}
+                  </span>
+                </div>
+                <Link
+                  href={`/deal/${spotlightDeal.slug}`}
+                  className="ghost-link text-caption uppercase font-medium"
+                >
+                  KAYDI AÇ &rarr;
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Hero Footer Prompt */}
-        <div className="relative z-10 flex items-center justify-between pt-6">
+        <div className="relative z-10 flex items-center justify-between pt-4 border-t border-ash">
           <span className="section-label">
-            VERIFIED STEAM, EPIC, GOG & HUMBLE DATA
+            DOĞRULANMIŞ STEAM, EPIC GAMES, GOG & HUMBLE VERİLERİ
           </span>
-          <span className="section-label">
-            SCROLL &darr;
-          </span>
+          <a href="#filters" className="section-label hover:underline">
+            AŞAĞI KAYDIRIN &darr;
+          </a>
         </div>
       </section>
 
-      {/* Founder / Editorial Statement Block */}
-      <section className="grid grid-cols-1 md:grid-cols-12 gap-12 py-12 border-b border-ash">
-        <div className="md:col-span-4 space-y-4">
+      {/* Institutional Statement / Founder Block */}
+      <section className="grid grid-cols-1 md:grid-cols-12 gap-10 py-8 border-b border-ash">
+        <div className="md:col-span-4 space-y-3">
           <span className="section-label block">
-            SOCIAERA DISPATCH // PURPOSE
+            SOCIAERA MANİFESTOSU // İLKELER
           </span>
-          <a href="#filters" className="ghost-link text-body-sm">
-            EXPLORE ARCHIVE &rarr;
-          </a>
+          <span className="text-caption text-ink/60 block">
+            TİCARİ REKLAM VE GÜRÜLTÜDEN ARINDIRILMIŞ DİJİTAL SEÇKİ
+          </span>
         </div>
-        <div className="md:col-span-8 space-y-6">
+        <div className="md:col-span-8 space-y-5">
           <p className="text-body leading-[1.40] font-normal text-ink max-w-2xl">
-            Sociaera operates as an architectural archive of verified video game pricing across global digital storefronts. Zero noise, zero advertising distractions — only structural data, verified promotions, and weekly free releases.
+            Sociaera; reklam baskısı, sponsorlu yönlendirmeler ve göz yoran afişler olmadan, yalnızca matematiksel fiyat avantajlarını ve kaliteli yapımları belgelemek için kurulmuş editoryal bir veri mimarisidir.
           </p>
-          <div className="flex items-center gap-6 pt-2">
+          <div className="flex flex-wrap items-center gap-6 pt-1">
             <span className="section-label">
-              INDEX TOTAL: {total} TITLES
+              TOPLAM ARŞİV: {total} OYUN
             </span>
-            <span className="section-label text-ash">
-              //
-            </span>
+            <span className="section-label text-ash">//</span>
             <button
               onClick={handleSyncNow}
               disabled={syncing}
-              className="ghost-link text-caption uppercase"
+              className="ghost-link text-caption uppercase font-medium"
             >
-              {syncing ? 'SYNCING LIVE RELEASES...' : 'REFRESH ARCHIVE &rarr;'}
+              {syncing ? 'VERİLER EŞİTLENİYOR...' : 'ARŞİVİ CANLI GÜNCELLE &rarr;'}
             </button>
           </div>
         </div>
       </section>
 
-      {/* Store Grid (Austere 1x4 Logo / Store Cell Grid) */}
+      {/* Interactive Storefront Grid (1x4 Luxury Cells) */}
       <section className="space-y-4">
-        <span className="section-label block">
-          INDEXED STOREFRONTS
-        </span>
+        <div className="flex items-center justify-between">
+          <span className="section-label">
+            ARŞİVLENEN DİJİTAL MAĞAZALAR
+          </span>
+          <span className="section-label text-ink/60">
+            FİLTRELEMEK İÇİN TIKLAYIN
+          </span>
+        </div>
         <div className="grid grid-cols-2 md:grid-cols-4 border border-ash bg-paper">
-          <div className="p-8 border-r border-b md:border-b-0 border-ash flex items-center justify-center">
-            <span className="font-mono text-body-sm tracking-wider uppercase font-medium">STEAM</span>
-          </div>
-          <div className="p-8 border-b md:border-b-0 md:border-r border-ash flex items-center justify-center">
-            <span className="font-mono text-body-sm tracking-wider uppercase font-medium">EPIC GAMES</span>
-          </div>
-          <div className="p-8 border-r border-ash flex items-center justify-center">
-            <span className="font-mono text-body-sm tracking-wider uppercase font-medium">GOG.COM</span>
-          </div>
-          <div className="p-8 flex items-center justify-center">
-            <span className="font-mono text-body-sm tracking-wider uppercase font-medium">HUMBLE STORE</span>
-          </div>
+          <button
+            onClick={() => handleFilterChange(() => setSelectedStore(selectedStore === 'steam' ? 'all' : 'steam'))}
+            className={`p-8 border-r border-b md:border-b-0 border-ash flex flex-col items-center justify-center transition-all ${
+              selectedStore === 'steam' ? 'bg-ink text-parchment' : 'hover:bg-parchment text-ink'
+            }`}
+          >
+            <span className="font-mono text-body-sm tracking-wider uppercase font-bold">STEAM</span>
+            <span className="text-[10px] uppercase font-mono tracking-widest opacity-60 mt-1">BÖLGESEL TR-USD</span>
+          </button>
+
+          <button
+            onClick={() => handleFilterChange(() => setSelectedStore(selectedStore === 'epic' ? 'all' : 'epic'))}
+            className={`p-8 border-b md:border-b-0 md:border-r border-ash flex flex-col items-center justify-center transition-all ${
+              selectedStore === 'epic' ? 'bg-ink text-parchment' : 'hover:bg-parchment text-ink'
+            }`}
+          >
+            <span className="font-mono text-body-sm tracking-wider uppercase font-bold">EPIC GAMES</span>
+            <span className="text-[10px] uppercase font-mono tracking-widest opacity-60 mt-1">HAFTALIK HEDİYELER</span>
+          </button>
+
+          <button
+            onClick={() => handleFilterChange(() => setSelectedStore(selectedStore === 'gog' ? 'all' : 'gog'))}
+            className={`p-8 border-r border-ash flex flex-col items-center justify-center transition-all ${
+              selectedStore === 'gog' ? 'bg-ink text-parchment' : 'hover:bg-parchment text-ink'
+            }`}
+          >
+            <span className="font-mono text-body-sm tracking-wider uppercase font-bold">GOG.COM</span>
+            <span className="text-[10px] uppercase font-mono tracking-widest opacity-60 mt-1">DRM-FREE LİSANSLAR</span>
+          </button>
+
+          <button
+            onClick={() => handleFilterChange(() => setSelectedStore(selectedStore === 'humble' ? 'all' : 'humble'))}
+            className={`p-8 flex flex-col items-center justify-center transition-all ${
+              selectedStore === 'humble' ? 'bg-ink text-parchment' : 'hover:bg-parchment text-ink'
+            }`}
+          >
+            <span className="font-mono text-body-sm tracking-wider uppercase font-bold">HUMBLE STORE</span>
+            <span className="text-[10px] uppercase font-mono tracking-widest opacity-60 mt-1">ÖZEL PAKETLER</span>
+          </button>
         </div>
       </section>
 
-      {/* Filter Section: Pill-Shaped Ghost Buttons (10px Radius) */}
-      <section id="filters" className="space-y-6 pt-8">
-        <div className="flex items-center justify-between pb-4 border-b border-ash">
-          <span className="section-label">
-            FILTER SELECTION
+      {/* Filter Section: 10px Pill Ghost Buttons */}
+      <section id="filters" className="space-y-6 pt-4">
+        <div className="flex items-center justify-between pb-3 border-b border-ash">
+          <span className="section-label font-medium">
+            EDİTORYAL FİLTRELEME SİSTEMİ
           </span>
           <span className="section-label">
-            SHOWING {deals.length} OF {total}
+            LİSTELENEN: {deals.length} / {total}
           </span>
         </div>
 
-        {/* Pill Ghost Filters */}
-        <div className="flex flex-wrap items-center gap-3">
+        {/* Pill Ghost Filters (10px Radius) */}
+        <div className="flex flex-wrap items-center gap-2.5">
           <button
             onClick={() => handleFilterChange(() => setSelectedStore('all'))}
             className={`filter-button ${selectedStore === 'all' ? 'is-active' : ''}`}
           >
-            ALL ARCHIVES &rarr;
+            TÜM ARŞİV ({total}) &rarr;
           </button>
 
           <button
             onClick={() => handleFilterChange(() => setSelectedStore('free'))}
             className={`filter-button ${selectedStore === 'free' ? 'is-active' : ''}`}
           >
-            100% FREE NOW &rarr;
+            🎁 100% ÜCRETSİZ OYUNLAR &rarr;
           </button>
 
           <button
@@ -236,11 +336,11 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
         </div>
 
         {/* Minimal Search & Sort Controls */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 pt-2">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 pt-1">
           <div className="md:col-span-6">
             <input
               type="text"
-              placeholder="SEARCH BY TITLE OR DEVELOPER..."
+              placeholder="OYUN ADI, YAYINCI VEYA ANAHTAR KELİME ARA..."
               value={search}
               onChange={(e) => handleFilterChange(() => setSearch(e.target.value))}
               className="w-full px-4 py-2.5 rounded-inputs bg-paper border border-ash text-ink placeholder-ash text-caption uppercase tracking-wider focus:outline-none focus:border-ink transition-colors"
@@ -251,15 +351,15 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
             <select
               value={category}
               onChange={(e) => handleFilterChange(() => setCategory(e.target.value))}
-              aria-label="Category"
+              aria-label="Kategori"
               className="w-full px-4 py-2.5 rounded-inputs bg-paper border border-ash text-ink text-caption uppercase tracking-wider focus:outline-none focus:border-ink transition-colors"
             >
-              <option value="all">ALL CATEGORIES</option>
-              <option value="action">ACTION</option>
-              <option value="rpg">RPG / ROLE PLAYING</option>
-              <option value="strategy">STRATEGY</option>
-              <option value="adventure">ADVENTURE</option>
-              <option value="indie">INDIE</option>
+              <option value="all">TÜM KATEGORİLER</option>
+              <option value="action">AKSİYON</option>
+              <option value="rpg">RPG / ROL YAPMA</option>
+              <option value="strategy">STRATEJİ</option>
+              <option value="adventure">MACERA</option>
+              <option value="indie">BAĞIMSIZ (INDIE)</option>
             </select>
           </div>
 
@@ -267,14 +367,14 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
             <select
               value={sortBy}
               onChange={(e) => handleFilterChange(() => setSortBy(e.target.value as any))}
-              aria-label="Sort"
+              aria-label="Sıralama"
               className="w-full px-4 py-2.5 rounded-inputs bg-paper border border-ash text-ink text-caption uppercase tracking-wider focus:outline-none focus:border-ink transition-colors"
             >
-              <option value="savings">MAXIMUM DISCOUNT</option>
-              <option value="rating">COMMUNITY SCORE</option>
-              <option value="price_asc">PRICE: ASCENDING</option>
-              <option value="price_desc">PRICE: DESCENDING</option>
-              <option value="newest">LATEST ADDITIONS</option>
+              <option value="savings">EN YÜKSEK İNDİRİM ORANI</option>
+              <option value="rating">TOPLULUK PUANI</option>
+              <option value="price_asc">FİYAT: DÜŞÜKTEN YÜKSEĞE</option>
+              <option value="price_desc">FİYAT: YÜKSEKTEN DÜŞÜĞE</option>
+              <option value="newest">EN YENİ ARŞİVLENENLER</option>
             </select>
           </div>
         </div>
@@ -299,9 +399,9 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
           </div>
         ) : (
           <div className="p-16 border border-ash bg-paper text-center space-y-4">
-            <span className="section-label block">NO RECORDS LOCATED</span>
+            <span className="section-label block">EŞLEŞEN KAYIT BULUNAMADI</span>
             <p className="text-body-sm text-ink/60 max-w-md mx-auto">
-              No promotions match the current filter criteria. Reset parameters to view the complete archive.
+              Seçilen kriterlere uygun indirim bulunamadı. Filtreleri sıfırlayarak tüm arşivi görüntüleyebilirsiniz.
             </p>
             <button
               onClick={() => {
@@ -312,7 +412,7 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
               }}
               className="filter-button"
             >
-              RESET ALL PARAMETERS &rarr;
+              PARAMETRELERİ SIFIRLA &rarr;
             </button>
           </div>
         )}
