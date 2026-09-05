@@ -1,123 +1,86 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
 
 export default function Footer() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert('Loot Dispatch haftalık editoryal bültenine başarıyla kaydoldunuz!');
+    alert('Subscribed to the Sociaera Archival Dispatch.');
   };
 
   return (
-    <footer className="mt-24">
-      {/* Newsletter (Orbital CTA) */}
-      <section
-        id="bulten"
-        className="rounded-[var(--radius)] bg-ink text-paper p-8 md:p-12 border border-ink relative overflow-hidden mb-12"
-      >
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
-          <div className="lg:col-span-7 space-y-3">
-            <span className="font-mono text-[10px] uppercase tracking-mono text-lime font-bold">
-              HAFTALIK EDİTORYAL SEÇKİ
-            </span>
-            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tighter leading-tight text-white">
-              Gürültü yok.<br />
-              Sadece en iyi oyunlar.
-            </h2>
-            <p className="text-xs md:text-sm text-paper/70 font-sans max-w-xl leading-relaxed">
-              Haftada bir gün, algoritmaların değil editörlerimizin onayladığı kaçırılmayacak indirimleri ve ücretsiz oyunları doğrudan gelen kutunuza iletiyoruz.
-            </p>
-          </div>
+    <footer id="about" className="mt-32 border-t border-ash pt-16 pb-24 relative overflow-hidden">
+      {/* Decorative Concentric Circle in Footer */}
+      <div
+        className="concentric-circle w-[520px] h-[520px] bottom-[-15%] right-[-5%]"
+        aria-hidden="true"
+      />
 
-          <form onSubmit={handleSubmit} className="lg:col-span-5 space-y-2">
-            <label htmlFor="newsletter-email" className="font-mono text-[9px] uppercase tracking-mono text-paper/60 block font-medium">
-              E-POSTA ADRESİNİZ
-            </label>
-            <div className="flex items-stretch gap-2">
-              <input
-                id="newsletter-email"
-                type="email"
-                placeholder="ornek@alanadi.com"
-                required
-                className="flex-1 px-4 py-2.5 rounded-[var(--radius)] bg-paper/10 border border-paper/20 text-white placeholder-paper/40 text-xs font-mono focus:outline-none focus:border-lime transition-colors"
-              />
-              <button
-                type="submit"
-                className="px-5 py-2.5 rounded-[var(--radius)] bg-lime text-ink font-sans font-extrabold text-xs uppercase tracking-wider hover:bg-white transition-all flex items-center gap-1.5 shrink-0"
-              >
-                KATIL <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-            <small className="font-mono text-[9px] text-paper/40 block mt-1">
-              İstediğiniz an tek tıkla abonelikten ayrılabilirsiniz.
-            </small>
-          </form>
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-12 relative z-10">
+        {/* Brand & Manifesto */}
+        <div className="md:col-span-5 space-y-4">
+          <span className="font-bold text-xl tracking-tight text-ink uppercase block">
+            SOCIAERA.
+          </span>
+          <p className="text-body-sm text-ink/70 max-w-sm leading-relaxed">
+            A typographic and architectural archive of curated digital video game promotions across Steam, Epic Games, GOG, and Humble Store.
+          </p>
+          <span className="section-label block text-ink/50 pt-4">
+            &copy; {new Date().getFullYear()} SOCIAERA. ALL RIGHTS RESERVED.
+          </span>
         </div>
-      </section>
 
-      {/* Editorial Colophon & Links */}
-      <div className="pt-8 pb-12 border-t border-ink/20">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-          {/* Brand & Manifesto */}
-          <div className="md:col-span-6 space-y-3">
-            <div className="flex items-center gap-3">
-              <span className="brand-mark">
-                <i />
-                <i />
-                <i />
-                <i />
-              </span>
-              <span className="font-black text-lg tracking-tighter text-ink leading-none">
-                LOOT<span className="font-normal opacity-60">DISPATCH</span>
-              </span>
-            </div>
-            <p className="text-xs text-muted font-sans leading-relaxed max-w-md">
-              Loot Dispatch; Steam, Epic Games, GOG ve Humble Store üzerindeki fiyat dalgalanmalarını ve indirim fırsatlarını editoryal disiplinle raporlayan bağımsız bir dijital yayındır.
-            </p>
-            <p className="font-mono text-[10px] text-muted uppercase tracking-mono">
-              © {new Date().getFullYear()} LOOT DISPATCH · HER HAKKI SAKLIDIR.
-            </p>
-          </div>
+        {/* Index Links */}
+        <div className="md:col-span-3 space-y-3">
+          <span className="section-label block text-ink">
+            PLATFORM ARCHIVE
+          </span>
+          <ul className="space-y-2 text-caption uppercase text-ink/70">
+            <li>
+              <Link href="/#filters" className="hover:text-ink transition-colors">
+                STEAM ARCHIVE &rarr;
+              </Link>
+            </li>
+            <li>
+              <Link href="/#filters" className="hover:text-ink transition-colors">
+                EPIC GAMES FREE &rarr;
+              </Link>
+            </li>
+            <li>
+              <Link href="/#filters" className="hover:text-ink transition-colors">
+                GOG DRM-FREE &rarr;
+              </Link>
+            </li>
+            <li>
+              <Link href="/#filters" className="hover:text-ink transition-colors">
+                HUMBLE STORE &rarr;
+              </Link>
+            </li>
+          </ul>
+        </div>
 
-          {/* Platforms */}
-          <div className="md:col-span-3 space-y-2">
-            <h4 className="font-mono text-[10px] uppercase tracking-mono font-bold text-ink">
-              MAĞAZALAR
-            </h4>
-            <ul className="space-y-1.5 text-xs text-muted font-mono uppercase tracking-wide">
-              <li>
-                <Link href="/#filtreler" className="hover:text-ink transition-colors">
-                  Steam Fırsatları
-                </Link>
-              </li>
-              <li>
-                <Link href="/#filtreler" className="hover:text-ink transition-colors">
-                  Epic Games & Ücretsiz
-                </Link>
-              </li>
-              <li>
-                <Link href="/#filtreler" className="hover:text-ink transition-colors">
-                  GOG DRM-Free
-                </Link>
-              </li>
-              <li>
-                <Link href="/#filtreler" className="hover:text-ink transition-colors">
-                  Humble Store Paketleri
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Legal Notice */}
-          <div className="md:col-span-3 space-y-2">
-            <h4 className="font-mono text-[10px] uppercase tracking-mono font-bold text-ink">
-              YASAL BİLGİ
-            </h4>
-            <p className="text-[11px] text-muted font-sans leading-relaxed">
-              Loot Dispatch bağımsız bir editoryal yayındır. Steam logosu Valve Corporation&apos;a, Epic Games logosu Epic Games Inc.&apos;e aittir.
-            </p>
-          </div>
+        {/* Newsletter Subscription (10px Ghost Hit-area) */}
+        <div className="md:col-span-4 space-y-4">
+          <span className="section-label block text-ink">
+            SUBSCRIBE TO DISPATCH
+          </span>
+          <p className="text-caption text-ink/70 leading-relaxed">
+            Weekly curated archival report delivered directly. Zero noise, only verified promotions.
+          </p>
+          <form onSubmit={handleSubmit} className="space-y-2">
+            <input
+              type="email"
+              placeholder="ENTER EMAIL ADDRESS..."
+              required
+              className="w-full px-4 py-2.5 rounded-inputs bg-paper border border-ash text-caption text-ink placeholder-ash uppercase tracking-wider focus:outline-none focus:border-ink transition-colors"
+            />
+            <button
+              type="submit"
+              className="w-full py-2.5 px-4 rounded-buttons border border-ink text-ink hover:bg-ink hover:text-parchment text-caption font-normal uppercase tracking-wider transition-all duration-200"
+            >
+              SUBSCRIBE &rarr;
+            </button>
+          </form>
         </div>
       </div>
     </footer>

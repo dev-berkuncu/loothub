@@ -49,7 +49,7 @@ ${discountLine}${ratingBadge}${genreTag}
 👇 Oyun incelemesi ve fırsat detayları:
 🔗 ${dealUrl}
 
-#LootHub #Oyunİndirimi #${storeName.replace(/\s+/g, '')} #${uniqueTag}`;
+#Sociaera #GamingDeals #${storeName.replace(/\s+/g, '')} #${uniqueTag}`;
 
   return tweet;
 }

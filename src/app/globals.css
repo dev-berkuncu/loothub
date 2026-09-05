@@ -3,227 +3,185 @@
 @tailwind utilities;
 
 :root {
-  /* Zemin ve Temel Renkler */
-  --paper: #f1f0e8;               /* Ana arka plan (sıcak kâğıt / gazete krem rengi) */
-  --paper-deep: #e7e5da;          /* İkincil kartlar, görsel placeholder zemini */
-  --ink: #10110f;                 /* Ana mürekkep rengi (metinler, butonlar, ana çizgiler) */
-  --muted: #686a63;               /* Pasif metinler, meta açıklamalar */
-  --line: rgba(16, 17, 15, 0.16); /* İkincil yumuşak ayırıcı çizgiler */
+  /* Colors */
+  --color-parchment: #e5e4e0;
+  --color-ink: #1d1d1d;
+  --color-paper: #ffffff;
+  --color-ash: #bfbebe;
+  --color-stone: #cdcdc9;
+  --color-iridescent-sphere: #facb00;
+  --gradient-iridescent-sphere: linear-gradient(255deg, rgb(250, 203, 14), rgb(240, 107, 168) 30%, rgb(120, 186, 230) 65%, rgb(255, 255, 255));
 
-  /* Vurgu (Aksan) Renkleri */
-  --lime: #d7ff52;                /* Elektrik neon yeşil (ana aksan, buton hover, rozetler) */
-  --orange: #ff6b3d;              /* Canlı neon turuncu (fırsatlar, indirimler, uyarılar) */
-  --blue: #66d6ff;                /* Canlı camgöbeği (ikincil kategoriler) */
-  --violet: #b69cff;              /* Canlı leylak / mor (özel seçkiler) */
+  /* Typography Scale Tokens */
+  --text-caption: 11px;
+  --leading-caption: 1.4;
+  --tracking-caption: 0.55px;
 
-  /* Ölçüler & Geometri */
-  --shell: min(1380px, calc(100vw - 64px));
-  --radius: 5px;
+  --text-body-sm: 15px;
+  --leading-body-sm: 1.4;
+  --tracking-body-sm: 0.15px;
+
+  --text-body: 18px;
+  --leading-body: 1.4;
+  --tracking-body: 0.23px;
+
+  --text-subheading: 34px;
+  --leading-subheading: 1;
+  --tracking-subheading: 0.44px;
+
+  --text-heading-sm: 46px;
+  --leading-heading-sm: 1;
+  --tracking-heading-sm: 0.6px;
+
+  --text-heading: 70px;
+  --leading-heading: 0.8;
+  --tracking-heading: 0.91px;
+
+  --text-heading-lg: 76px;
+  --leading-heading-lg: 0.8;
+  --tracking-heading-lg: 0.99px;
+
+  --text-display: 103px;
+  --leading-display: 0.8;
+  --tracking-display: 1.34px;
+
+  /* Spacing */
+  --spacing-5: 5px;
+  --spacing-6: 6px;
+  --spacing-8: 8px;
+  --spacing-15: 15px;
+  --spacing-19: 19px;
+  --spacing-30: 30px;
+  --spacing-32: 32px;
+  --spacing-46: 46px;
+  --spacing-76: 76px;
+  --spacing-119: 119px;
+
+  /* Border Radius */
+  --radius-cards: 0px;
+  --radius-links: 10px;
+  --radius-inputs: 10px;
+  --radius-buttons: 10px;
 }
 
 body {
-  color: var(--ink);
-  background-color: var(--paper);
+  background-color: var(--color-parchment);
+  color: var(--color-ink);
   min-height: 100vh;
-  font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
-/* Display Titles & Typography Rules */
-h1, h2, h3, .display-title {
-  font-family: 'Manrope', sans-serif;
-  letter-spacing: -0.06em;
-}
-
-h1 em, h2 em, h3 em, .display-title em {
-  font-style: normal;
-  font-weight: 400;
-}
-
-.font-mono-tech {
-  font-family: 'DM Mono', monospace;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-.editorial-copy {
-  font-family: Georgia, serif;
-  font-size: 18px;
-  line-height: 1.85;
-  color: #33352f;
-}
-
-.editorial-copy::first-letter {
-  font-family: 'Manrope', sans-serif;
-  font-size: 3.2rem;
-  font-weight: 800;
-  float: left;
-  line-height: 0.8;
-  margin-right: 0.5rem;
-  color: var(--ink);
+/* Strict No-Shadow Elevation Rule */
+* {
+  box-shadow: none !important;
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--paper-deep);
+  background: var(--color-parchment);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--ink);
-  border-radius: 2px;
+  background: var(--color-ash);
+  border-radius: 0px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--orange);
+  background: var(--color-ink);
 }
 
-/* Signal Strip (Marquee Animation) */
-.signal-strip {
-  overflow: hidden;
-  border-bottom: 1px solid var(--ink);
-  background: var(--lime);
+/* Iridescent Gradient Sphere (Signature Hero Object) */
+.hero-iridescent-sphere {
+  width: min(580px, 48vw);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--gradient-iridescent-sphere);
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
 }
 
-.signal-track {
-  width: max-content;
-  display: flex;
-  align-items: center;
-  gap: 26px;
-  padding: 11px 0;
-  animation: marquee 35s linear infinite;
+/* Concentric Circle Ornaments */
+.concentric-circle {
+  position: absolute;
+  border: 1px solid var(--color-ash);
+  border-radius: 50%;
+  pointer-events: none;
 }
 
-.signal-track span {
+/* Section Label (Museum Signage Style) */
+.section-label {
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 400;
+  color: var(--color-ink);
+}
+
+/* Display Headline (Stacked Mass) */
+.display-headline {
+  font-size: clamp(48px, 6.8vw, 103px);
+  line-height: 0.80;
+  letter-spacing: 0.013em;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: var(--color-ink);
+}
+
+/* Filter Button (Pill Ghost) */
+.filter-button {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font: 500 10px/1 "DM Mono", monospace;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  color: var(--ink);
-  white-space: nowrap;
-}
-
-.signal-track i {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--ink);
-  opacity: .4;
-}
-
-@keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-/* Brand Mark (Geometric 4 square dots) */
-.brand-mark {
-  display: inline-grid;
-  grid-template-columns: repeat(2, 6px);
-  gap: 3px;
-}
-
-.brand-mark i {
-  display: block;
-  width: 6px;
-  height: 6px;
-  background: var(--ink);
-  border-radius: 1px;
-}
-
-.brand:hover .brand-mark i:nth-child(2) {
-  background: var(--lime);
-}
-
-/* Kind Pill (Top-Left Badge on cards) */
-.kind-pill {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  padding: 6px 9px;
-  background: var(--paper);
-  color: var(--ink);
-  font: 500 9px/1 "DM Mono", monospace;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  border: 1px solid var(--ink);
-  border-radius: 3px;
-  z-index: 10;
-}
-
-/* Discount Stamp (Big Display Stamp bottom right) */
-.discount-stamp {
-  position: absolute;
-  right: 12px;
-  bottom: 8px;
-  font-family: 'Manrope', sans-serif;
-  font-size: 34px;
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: -.07em;
-  color: white;
-  text-shadow: 0 2px 14px rgba(0, 0, 0, .6);
-  z-index: 10;
-}
-
-/* Circle Link Button */
-.circle-link {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border: 1px solid var(--ink);
-  border-radius: 50%;
-  background: transparent;
-  color: var(--ink);
-  font-size: 16px;
-  font-weight: bold;
-  transition: all .2s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.circle-link:hover {
-  background: var(--ink);
-  color: var(--lime);
-  transform: scale(1.08);
-}
-
-/* Filter Chip */
-.filter-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  border: 1px solid var(--line);
-  background: var(--paper);
-  color: var(--ink);
-  font-family: 'DM Mono', monospace;
+  padding: 8px 19px;
+  border: 1px solid var(--color-ink);
+  border-radius: 10px;
   font-size: 11px;
-  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  border-radius: var(--radius);
+  letter-spacing: 0.05em;
+  font-weight: 400;
+  color: var(--color-ink);
+  background: transparent;
   transition: all 0.2s ease;
   cursor: pointer;
 }
 
-.filter-chip:hover {
-  border-color: var(--ink);
-  background: var(--paper-deep);
+.filter-button:hover,
+.filter-button.is-active {
+  background: var(--color-ink);
+  color: var(--color-parchment);
 }
 
-.filter-chip.is-active {
-  background: var(--ink);
-  color: var(--paper);
-  border-color: var(--ink);
+/* Ghost Text Link */
+.ghost-link {
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--color-ink);
+  border-radius: 10px;
+  padding: 5px 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  transition: all 0.2s ease;
 }
 
-.filter-chip.is-active span {
-  background: var(--lime);
-  color: var(--ink);
+.ghost-link:hover {
+  text-decoration: underline;
+}
+
+/* Grid-Paper Tile for Cards */
+.grid-paper {
+  background-color: var(--color-paper);
+  background-image: linear-gradient(to right, rgba(229, 228, 224, 0.4) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(229, 228, 224, 0.4) 1px, transparent 1px);
+  background-size: 24px 24px;
 }

@@ -2,16 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import {
-  Search,
-  ArrowRight,
-  ArrowUpRight,
-  Radio,
-  RefreshCw,
-  Gift,
-  Flame,
-  Zap,
-} from 'lucide-react';
 import DealCard from '@/components/DealCard';
 import { Deal } from '@/lib/types';
 
@@ -89,294 +79,240 @@ export default function DealsExplorer({ initialDeals, initialTotal }: DealsExplo
     }
   };
 
-  // Spotlight Deal
-  const spotlightDeal =
-    deals.find((d) => d.isFree || d.salePrice === 0) ||
-    deals.find((d) => d.savingsPercentage >= 70) ||
-    deals[0];
-
-  // Top 3 for the Dispatch Board
-  const boardDeals = deals.filter((d) => d.id !== spotlightDeal?.id).slice(0, 3);
-
   return (
-    <div className="space-y-12">
-      {/* Editorial Hero Spotlight + Dispatch Board (Canlı Hat Pano) */}
-      {spotlightDeal && !search && selectedStore === 'all' && (
-        <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-          {/* Main Editorial Spotlight (Col 8) */}
-          <div className="lg:col-span-8 rounded-[var(--radius)] border border-ink bg-white/60 p-6 md:p-8 flex flex-col justify-between relative overflow-hidden shadow-sm">
-            <div className="space-y-4">
-              {/* Eyebrow & Badges */}
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="font-mono text-[10px] uppercase tracking-mono text-ink font-bold bg-lime px-2 py-1 rounded-[2px] border border-ink flex items-center gap-1.5">
-                  <Zap className="w-3 h-3 text-ink" />
-                  GÜNÜN MANŞETİ
-                </span>
-                <span className="font-mono text-[10px] uppercase tracking-mono text-muted">
-                  {spotlightDeal.storeName || 'STEAM'} · EDİTORYAL RAPOR
-                </span>
-                <span className="font-mono text-[10px] uppercase tracking-mono text-ink font-bold ml-auto border border-ink px-2 py-0.5 rounded-[2px]">
-                  {spotlightDeal.salePrice === 0
-                    ? 'ÜCRETSİZ'
-                    : `−%${Math.round(spotlightDeal.savingsPercentage)}`}
-                </span>
-              </div>
+    <div className="space-y-24">
+      {/* Hero Section: Monumental Typography + Signature Iridescent Gradient Sphere */}
+      <section className="relative min-h-[75vh] flex flex-col justify-between pt-12 pb-8 overflow-hidden border-b border-ash">
+        {/* Iridescent Gradient Sphere (The Only Chromatic Element) */}
+        <div
+          className="hero-iridescent-sphere top-[-10%] right-[5%] md:right-[12%]"
+          aria-hidden="true"
+        />
 
-              {/* Huge Display Title */}
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-ink tracking-tighter leading-[0.95]">
-                {spotlightDeal.title}
-              </h1>
+        {/* Concentric Circle Ornaments */}
+        <div
+          className="concentric-circle w-[720px] h-[720px] top-[-18%] right-[0%]"
+          aria-hidden="true"
+        />
+        <div
+          className="concentric-circle w-[940px] h-[940px] top-[-30%] right-[-8%]"
+          aria-hidden="true"
+        />
 
-              {/* Editorial Description */}
-              <p className="text-sm md:text-base text-muted font-sans line-clamp-3 leading-relaxed max-w-2xl">
-                {spotlightDeal.shortDescription ||
-                  `${spotlightDeal.title}, dijital platformlarda haftanın en dikkat çeken fırsatları arasında öne çıkıyor.`}
-              </p>
+        {/* Top Section Label */}
+        <div className="relative z-10">
+          <span className="section-label block">
+            ARCHITECTURAL INDEX // SOCIAERA.ONLINE
+          </span>
+        </div>
 
-              {/* Spotlight Image */}
-              <div className="relative aspect-[21/9] w-full overflow-hidden rounded-[2px] border border-line bg-paper-deep my-4">
-                <img
-                  src={spotlightDeal.headerImage}
-                  alt={spotlightDeal.title}
-                  className="w-full h-full object-cover saturate-[0.9] contrast-[1.04]"
-                />
-              </div>
-            </div>
+        {/* Monumental Display Headline (Stacked Mass) */}
+        <div className="relative z-10 my-auto py-12">
+          <h1 className="display-headline select-none">
+            CURATED<br />
+            ARCHITECTURE OF<br />
+            DIGITAL GAMES.
+          </h1>
+        </div>
 
-            {/* Bottom Pricing & CTA */}
-            <div className="pt-4 border-t border-line flex flex-wrap items-center justify-between gap-4 mt-2">
-              <div className="flex items-baseline gap-3">
-                {spotlightDeal.normalPrice > 0 && (
-                  <del className="text-sm text-muted font-mono line-through font-medium">
-                    ${spotlightDeal.normalPrice.toFixed(2)}
-                  </del>
-                )}
-                <b className="text-3xl font-black text-ink tracking-tight font-sans">
-                  {spotlightDeal.salePrice === 0 ? 'ÜCRETSİZ' : `$${spotlightDeal.salePrice.toFixed(2)}`}
-                </b>
-              </div>
+        {/* Hero Footer Prompt */}
+        <div className="relative z-10 flex items-center justify-between pt-6">
+          <span className="section-label">
+            VERIFIED STEAM, EPIC, GOG & HUMBLE DATA
+          </span>
+          <span className="section-label">
+            SCROLL &darr;
+          </span>
+        </div>
+      </section>
 
-              <div className="flex items-center gap-3">
-                <Link
-                  href={`/deal/${spotlightDeal.slug}`}
-                  className="px-5 py-2.5 rounded-[var(--radius)] bg-ink hover:bg-lime text-paper hover:text-ink font-sans font-extrabold text-xs uppercase tracking-wider transition-all duration-200 border border-ink flex items-center gap-2 shadow-sm"
-                >
-                  Raporu Oku & Al
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {/* Dispatch Board (Canlı Hat Panosu - Col 4) */}
-          <aside className="lg:col-span-4 rounded-[var(--radius)] border border-ink bg-paper-deep p-6 flex flex-col justify-between">
-            <div>
-              <header className="flex items-center justify-between pb-4 border-b border-line mb-4">
-                <span className="font-mono text-[11px] uppercase tracking-mono text-ink font-bold flex items-center gap-2">
-                  <Radio className="w-3.5 h-3.5 text-orange animate-pulse" />
-                  CANLI HAT (DISPATCH)
-                </span>
-                <span className="font-mono text-[10px] text-muted uppercase">SON 24 SAAT</span>
-              </header>
-
-              <div className="space-y-4">
-                {boardDeals.map((item, index) => (
-                  <Link
-                    key={item.id}
-                    href={`/deal/${item.slug}`}
-                    className="group block p-3 rounded-[var(--radius)] bg-paper border border-line hover:border-ink hover:shadow-sm transition-all"
-                  >
-                    <div className="flex items-start gap-3">
-                      <span className="font-mono font-bold text-xs text-muted group-hover:text-ink">
-                        0{index + 1}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <small className="font-mono text-[9px] uppercase tracking-mono text-muted block mb-0.5">
-                          {item.storeName || 'STEAM'} · {item.genres?.[0] || 'FIRSAT'}
-                        </small>
-                        <h4 className="font-sans font-extrabold text-xs text-ink group-hover:underline line-clamp-1 leading-snug">
-                          {item.title}
-                        </h4>
-                      </div>
-                      <b className="font-mono text-xs font-bold text-ink shrink-0">
-                        {item.salePrice === 0
-                          ? 'ÜCRETSİZ'
-                          : `−%${Math.round(item.savingsPercentage)}`}
-                      </b>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-line mt-6 flex items-center justify-between">
-              <span className="font-mono text-[10px] text-muted uppercase">
-                {total} AKTİF İNDİRİM
-              </span>
-              <button
-                onClick={handleSyncNow}
-                disabled={syncing}
-                className="font-mono text-[10px] uppercase tracking-mono text-ink font-bold hover:underline flex items-center gap-1.5"
-              >
-                <RefreshCw className={`w-3 h-3 ${syncing ? 'animate-spin' : ''}`} />
-                {syncing ? 'TARANIYOR' : 'YENİLE'}
-              </button>
-            </div>
-          </aside>
-        </section>
-      )}
-
-      {/* Filter Row & Controls (Filtre Çipleri) */}
-      <section id="filtreler" className="space-y-6 pt-4">
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 pb-4 border-b border-ink/20">
-          {/* Store Filter Chips */}
-          <div className="flex flex-wrap items-center gap-2">
+      {/* Founder / Editorial Statement Block */}
+      <section className="grid grid-cols-1 md:grid-cols-12 gap-12 py-12 border-b border-ash">
+        <div className="md:col-span-4 space-y-4">
+          <span className="section-label block">
+            SOCIAERA DISPATCH // PURPOSE
+          </span>
+          <a href="#filters" className="ghost-link text-body-sm">
+            EXPLORE ARCHIVE &rarr;
+          </a>
+        </div>
+        <div className="md:col-span-8 space-y-6">
+          <p className="text-body leading-[1.40] font-normal text-ink max-w-2xl">
+            Sociaera operates as an architectural archive of verified video game pricing across global digital storefronts. Zero noise, zero advertising distractions — only structural data, verified promotions, and weekly free releases.
+          </p>
+          <div className="flex items-center gap-6 pt-2">
+            <span className="section-label">
+              INDEX TOTAL: {total} TITLES
+            </span>
+            <span className="section-label text-ash">
+              //
+            </span>
             <button
-              onClick={() => handleFilterChange(() => setSelectedStore('all'))}
-              className={`filter-chip ${selectedStore === 'all' ? 'is-active' : ''}`}
+              onClick={handleSyncNow}
+              disabled={syncing}
+              className="ghost-link text-caption uppercase"
             >
-              TÜMÜ <span>{total}</span>
-            </button>
-
-            <button
-              onClick={() => handleFilterChange(() => setSelectedStore('free'))}
-              className={`filter-chip ${selectedStore === 'free' ? 'is-active' : ''}`}
-            >
-              <Gift className="w-3.5 h-3.5 text-orange" />
-              ÜCRETSİZ OYUNLAR
-            </button>
-
-            <button
-              onClick={() => handleFilterChange(() => setSelectedStore('steam'))}
-              className={`filter-chip ${selectedStore === 'steam' ? 'is-active' : ''}`}
-            >
-              STEAM
-            </button>
-
-            <button
-              onClick={() => handleFilterChange(() => setSelectedStore('epic'))}
-              className={`filter-chip ${selectedStore === 'epic' ? 'is-active' : ''}`}
-            >
-              EPIC GAMES
-            </button>
-
-            <button
-              onClick={() => handleFilterChange(() => setSelectedStore('gog'))}
-              className={`filter-chip ${selectedStore === 'gog' ? 'is-active' : ''}`}
-            >
-              GOG
-            </button>
-
-            <button
-              onClick={() => handleFilterChange(() => setSelectedStore('humble'))}
-              className={`filter-chip ${selectedStore === 'humble' ? 'is-active' : ''}`}
-            >
-              HUMBLE STORE
+              {syncing ? 'SYNCING LIVE RELEASES...' : 'REFRESH ARCHIVE &rarr;'}
             </button>
           </div>
+        </div>
+      </section>
 
-          {/* Sync Trigger */}
+      {/* Store Grid (Austere 1x4 Logo / Store Cell Grid) */}
+      <section className="space-y-4">
+        <span className="section-label block">
+          INDEXED STOREFRONTS
+        </span>
+        <div className="grid grid-cols-2 md:grid-cols-4 border border-ash bg-paper">
+          <div className="p-8 border-r border-b md:border-b-0 border-ash flex items-center justify-center">
+            <span className="font-mono text-body-sm tracking-wider uppercase font-medium">STEAM</span>
+          </div>
+          <div className="p-8 border-b md:border-b-0 md:border-r border-ash flex items-center justify-center">
+            <span className="font-mono text-body-sm tracking-wider uppercase font-medium">EPIC GAMES</span>
+          </div>
+          <div className="p-8 border-r border-ash flex items-center justify-center">
+            <span className="font-mono text-body-sm tracking-wider uppercase font-medium">GOG.COM</span>
+          </div>
+          <div className="p-8 flex items-center justify-center">
+            <span className="font-mono text-body-sm tracking-wider uppercase font-medium">HUMBLE STORE</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Filter Section: Pill-Shaped Ghost Buttons (10px Radius) */}
+      <section id="filters" className="space-y-6 pt-8">
+        <div className="flex items-center justify-between pb-4 border-b border-ash">
+          <span className="section-label">
+            FILTER SELECTION
+          </span>
+          <span className="section-label">
+            SHOWING {deals.length} OF {total}
+          </span>
+        </div>
+
+        {/* Pill Ghost Filters */}
+        <div className="flex flex-wrap items-center gap-3">
           <button
-            onClick={handleSyncNow}
-            disabled={syncing}
-            className="px-3.5 py-2 rounded-[var(--radius)] border border-line hover:border-ink bg-paper text-ink font-mono text-[10px] uppercase tracking-mono font-medium flex items-center justify-center gap-2 transition-all"
+            onClick={() => handleFilterChange(() => setSelectedStore('all'))}
+            className={`filter-button ${selectedStore === 'all' ? 'is-active' : ''}`}
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
-            {syncing ? 'TARANIYOR...' : 'CANLI VERİ ÇEK'}
+            ALL ARCHIVES &rarr;
+          </button>
+
+          <button
+            onClick={() => handleFilterChange(() => setSelectedStore('free'))}
+            className={`filter-button ${selectedStore === 'free' ? 'is-active' : ''}`}
+          >
+            100% FREE NOW &rarr;
+          </button>
+
+          <button
+            onClick={() => handleFilterChange(() => setSelectedStore('steam'))}
+            className={`filter-button ${selectedStore === 'steam' ? 'is-active' : ''}`}
+          >
+            STEAM &rarr;
+          </button>
+
+          <button
+            onClick={() => handleFilterChange(() => setSelectedStore('epic'))}
+            className={`filter-button ${selectedStore === 'epic' ? 'is-active' : ''}`}
+          >
+            EPIC GAMES &rarr;
+          </button>
+
+          <button
+            onClick={() => handleFilterChange(() => setSelectedStore('gog'))}
+            className={`filter-button ${selectedStore === 'gog' ? 'is-active' : ''}`}
+          >
+            GOG &rarr;
+          </button>
+
+          <button
+            onClick={() => handleFilterChange(() => setSelectedStore('humble'))}
+            className={`filter-button ${selectedStore === 'humble' ? 'is-active' : ''}`}
+          >
+            HUMBLE STORE &rarr;
           </button>
         </div>
 
-        {/* Search & Sort Row */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 p-4 rounded-[var(--radius)] border border-line bg-white/40">
-          {/* Search Box */}
-          <div className="md:col-span-6 relative">
-            <Search className="w-4 h-4 text-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
+        {/* Minimal Search & Sort Controls */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 pt-2">
+          <div className="md:col-span-6">
             <input
               type="text"
-              placeholder="Oyun veya yapımcı ara..."
+              placeholder="SEARCH BY TITLE OR DEVELOPER..."
               value={search}
               onChange={(e) => handleFilterChange(() => setSearch(e.target.value))}
-              className="w-full pl-10 pr-4 py-2 rounded-[var(--radius)] bg-paper border border-line text-ink placeholder-muted text-xs font-mono focus:outline-none focus:border-ink transition-colors"
+              className="w-full px-4 py-2.5 rounded-inputs bg-paper border border-ash text-ink placeholder-ash text-caption uppercase tracking-wider focus:outline-none focus:border-ink transition-colors"
             />
           </div>
 
-          {/* Category Select */}
           <div className="md:col-span-3">
             <select
               value={category}
               onChange={(e) => handleFilterChange(() => setCategory(e.target.value))}
-              aria-label="Kategori Seç"
-              className="w-full px-3 py-2 rounded-[var(--radius)] bg-paper border border-line text-ink text-xs font-mono uppercase focus:outline-none focus:border-ink transition-colors"
+              aria-label="Category"
+              className="w-full px-4 py-2.5 rounded-inputs bg-paper border border-ash text-ink text-caption uppercase tracking-wider focus:outline-none focus:border-ink transition-colors"
             >
-              <option value="all">Tüm Kategoriler</option>
-              <option value="action">Aksiyon</option>
-              <option value="rpg">RPG / Rol Yapma</option>
-              <option value="strategy">Strateji</option>
-              <option value="adventure">Macera</option>
-              <option value="indie">Bağımsız (Indie)</option>
-              <option value="multiplayer">Çok Oyunculu</option>
+              <option value="all">ALL CATEGORIES</option>
+              <option value="action">ACTION</option>
+              <option value="rpg">RPG / ROLE PLAYING</option>
+              <option value="strategy">STRATEGY</option>
+              <option value="adventure">ADVENTURE</option>
+              <option value="indie">INDIE</option>
             </select>
           </div>
 
-          {/* Sort Select */}
           <div className="md:col-span-3">
             <select
               value={sortBy}
               onChange={(e) => handleFilterChange(() => setSortBy(e.target.value as any))}
-              aria-label="Sıralama Seç"
-              className="w-full px-3 py-2 rounded-[var(--radius)] bg-paper border border-line text-ink text-xs font-mono uppercase focus:outline-none focus:border-ink transition-colors"
+              aria-label="Sort"
+              className="w-full px-4 py-2.5 rounded-inputs bg-paper border border-ash text-ink text-caption uppercase tracking-wider focus:outline-none focus:border-ink transition-colors"
             >
-              <option value="savings">En Yüksek İndirim</option>
-              <option value="rating">Topluluk Puanı</option>
-              <option value="price_asc">Fiyat: Artan</option>
-              <option value="price_desc">Fiyat: Azalan</option>
-              <option value="newest">En Yeni İndirimler</option>
+              <option value="savings">MAXIMUM DISCOUNT</option>
+              <option value="rating">COMMUNITY SCORE</option>
+              <option value="price_asc">PRICE: ASCENDING</option>
+              <option value="price_desc">PRICE: DESCENDING</option>
+              <option value="newest">LATEST ADDITIONS</option>
             </select>
           </div>
         </div>
       </section>
 
-      {/* Editorial Grid (Dispatch Cards) */}
+      {/* Grid Showcase of Project / Deal Tiles */}
       <section className="space-y-6">
-        <div className="flex items-center justify-between pb-2 border-b border-line">
-          <h2 className="text-xl md:text-2xl font-extrabold text-ink tracking-tight flex items-center gap-2">
-            <span>EDİTORYAL SEÇKİ & FIRSATLAR</span>
-            <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded-[2px] bg-paper-deep border border-line text-muted">
-              {total} KAYIT
-            </span>
-          </h2>
-        </div>
-
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {Array.from({ length: 8 }).map((_, i) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
-                className="rounded-[var(--radius)] border border-line bg-paper-deep aspect-[4/5] animate-pulse"
+                className="grid-paper border border-ash rounded-cards aspect-[4/5] animate-pulse"
               />
             ))}
           </div>
         ) : deals.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {deals.map((deal) => (
               <DealCard key={deal.id} deal={deal} />
             ))}
           </div>
         ) : (
-          <div className="text-center py-20 px-4 rounded-[var(--radius)] border border-ink/30 bg-paper-deep space-y-4">
-            <h3 className="text-lg font-bold text-ink font-mono uppercase">
-              SEÇİLEN KRİTERLERE UYGUN FIRSAT BULUNAMADI
-            </h3>
-            <p className="text-xs text-muted max-w-md mx-auto font-sans">
-              Filtreleri sıfırlayabilir veya canlı tarama motorunu tetikleyerek yeni fırsatları çekebilirsiniz.
+          <div className="p-16 border border-ash bg-paper text-center space-y-4">
+            <span className="section-label block">NO RECORDS LOCATED</span>
+            <p className="text-body-sm text-ink/60 max-w-md mx-auto">
+              No promotions match the current filter criteria. Reset parameters to view the complete archive.
             </p>
             <button
-              onClick={handleSyncNow}
-              disabled={syncing}
-              className="px-5 py-2.5 rounded-[var(--radius)] bg-ink hover:bg-lime text-paper hover:text-ink font-mono text-xs uppercase tracking-mono font-bold transition-all border border-ink inline-flex items-center gap-2"
+              onClick={() => {
+                setSelectedStore('all');
+                setSearch('');
+                setCategory('all');
+                setHasFiltered(true);
+              }}
+              className="filter-button"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
-              {syncing ? 'TARANIYOR...' : 'VERİLERİ YENİLE'}
+              RESET ALL PARAMETERS &rarr;
             </button>
           </div>
         )}
